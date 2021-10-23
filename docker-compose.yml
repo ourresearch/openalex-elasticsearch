@@ -11,3 +11,11 @@ services:
       - ./pipeline/:/usr/share/logstash/pipeline/
       - ./sql_last_value.yml:/usr/share/sql_last_value.yml
     command: logstash
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:7.15.1
+    depends_on:
+      - logstash
+    env_file:
+      - .env
+    volumes:
+      - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
