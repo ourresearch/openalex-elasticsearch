@@ -6,9 +6,10 @@ metricbeat.modules:
   period: 10s
   hosts: ["logstash:9600"]
   xpack.enabled: true
+  strict.perms: false
 
 output:
   elasticsearch:
-    hosts: ["${ES_HOST}"]
-    username: "${ES_USER}"
-    password: "${ES_PASSWORD}"
+    hosts: ["${ES_HOST_MONITORING}"]
+    username: "${ES_USER_MONITORING}"
+    password: "${ES_PASSWORD_MONITORING}"
