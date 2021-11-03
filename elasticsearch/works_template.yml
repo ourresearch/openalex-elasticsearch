@@ -1,4 +1,5 @@
 {
+  "index_patterns": ["works*"],
   "template": {
     "settings": {
       "index": {
