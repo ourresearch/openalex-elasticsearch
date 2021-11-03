@@ -1,0 +1,212 @@
+{
+  "index_patterns": [ "works*" ],
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": "2",
+        "number_of_replicas": "1"
+      },
+      "analysis": {
+        "normalizer": {
+          "case_insensitive": {
+            "filter": "lowercase"
+          }
+        }
+      },
+      "mappings": {
+        "dynamic_templates": [ ],
+        "properties": {
+          "affiliations": {
+            "type": "nested",
+            "dynamic": "true",
+            "properties": {
+              "author_display_name": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "normalizer": "case_insensitive"
+                  }
+                }
+              },
+              "author_id": {
+                "type": "keyword",
+                "normalizer": "case_insensitive"
+              },
+              "author_sequence_number": {
+                "type": "integer"
+              },
+              "city": {
+                "type": "keyword",
+                "normalizer": "case_insensitive"
+              },
+              "country": {
+                "type": "keyword",
+                "normalizer": "case_insensitive"
+              },
+              "country_code": {
+                "type": "keyword",
+                "normalizer": "case_insensitive"
+              },
+              "grid_id": {
+                "type": "keyword",
+                "normalizer": "case_insensitive"
+              },
+              "institution_display_name": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "normalizer": "case_insensitive"
+                  }
+                }
+              },
+              "orcid": {
+                "type": "keyword",
+                "normalizer": "case_insensitive"
+              },
+              "ror": {
+                "type": "keyword",
+                "normalizer": "case_insensitive"
+              }
+            }
+          },
+          "citation_count": {
+            "type": "integer"
+          },
+          "concepts": {
+            "dynamic": "true",
+            "properties": {
+              "display_name": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "normalizer": "case_insensitive"
+                  }
+                }
+              },
+              "field_of_study_id": {
+                "type": "keyword",
+                "normalizer": "case_insensitive"
+              },
+              "score": {
+                "type": "float"
+              }
+            }
+          },
+          "concepts_raw": {
+            "type": "keyword",
+            "index": false
+          },
+          "doc_type": {
+            "type": "keyword",
+            "normalizer": "case_insensitive"
+          },
+          "ids": {
+            "type": "object"
+          },
+          "issue": {
+            "type": "keyword",
+            "normalizer": "case_insensitive"
+          },
+          "journal": {
+            "properties": {
+              "all_issns": {
+                "type": "keyword",
+                "normalizer": "case_insensitive"
+              },
+              "journal_id": {
+                "type": "keyword"
+              },
+              "publisher": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "normalizer": "case_insensitive"
+                  }
+                }
+              },
+              "title": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "normalizer": "case_insensitive"
+                  }
+                }
+              }
+            }
+          },
+          "locations": {
+            "type": "keyword",
+            "normalizer": "case_insensitive"
+          },
+          "paper_id": {
+            "type": "keyword"
+          },
+          "publication_date": {
+            "type": "date"
+          },
+          "unpaywall": {
+            "properties": {
+              "best_host_type": {
+                "type": "keyword",
+                "normalizer": "case_insensitive"
+              },
+              "best_license": {
+                "type": "keyword",
+                "normalizer": "case_insensitive"
+              },
+              "best_url": {
+                "type": "keyword",
+                "normalizer": "case_insensitive"
+              },
+              "best_version": {
+                "type": "keyword",
+                "normalizer": "case_insensitive"
+              },
+              "genre": {
+                "type": "keyword",
+                "normalizer": "case_insensitive"
+              },
+              "has_green": {
+                "type": "boolean"
+              },
+              "is_oa_bool": {
+                "type": "boolean"
+              },
+              "journal_is_oa": {
+                "type": "boolean"
+              },
+              "oa_status": {
+                "type": "keyword",
+                "normalizer": "case_insensitive"
+              }
+            }
+          },
+          "volume": {
+            "type": "keyword"
+          },
+          "work_id": {
+            "type": "keyword"
+          },
+          "work_title": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "normalizer": "case_insensitive"
+              }
+            }
+          },
+          "year": {
+            "type": "integer"
+          }
+        }
+      },
+      "aliases": { }
+    }
+  }
+}
