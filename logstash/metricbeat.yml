@@ -10,6 +10,6 @@ metricbeat.modules:
 
 output:
   elasticsearch:
-    hosts: ["${ES_HOST_MONITORING}"]
-    username: "${ES_USER_MONITORING}"
-    password: "${ES_PASSWORD_MONITORING}"
+    hosts: ["${ES_HOST_MONITORING_PROD}"]
+    username: "${ES_USER_MONITORING_PROD}"
+    password: "${ES_PASSWORD_MONITORING_PROD}"
