@@ -1,214 +1,230 @@
 {
-  "index_patterns": [ "works-*" ],
-  "template": {
-    "settings": {
-      "index": {
-        "number_of_shards": "1",
-        "number_of_replicas": "1"
-      },
-      "analysis": {
-        "normalizer": {
-          "case_insensitive": {
-            "filter": "lowercase"
-          }
-        }
-      },
-      "mappings": {
-        "dynamic_templates": [ ],
-        "properties": {
-          "affiliations": {
-            "type": "nested",
-            "dynamic": "true",
-            "properties": {
-              "author_display_name": {
-                "type": "text",
-                "fields": {
-                  "keyword": {
-                    "type": "keyword",
-                    "normalizer": "case_insensitive"
-                  }
-                }
-              },
-              "author_id": {
-                "type": "keyword",
-                "normalizer": "case_insensitive"
-              },
-              "author_sequence_number": {
-                "type": "integer"
-              },
-              "city": {
-                "type": "keyword",
-                "normalizer": "case_insensitive"
-              },
-              "country": {
-                "type": "keyword",
-                "normalizer": "case_insensitive"
-              },
-              "country_code": {
-                "type": "keyword",
-                "normalizer": "case_insensitive"
-              },
-              "grid_id": {
-                "type": "keyword",
-                "normalizer": "case_insensitive"
-              },
-              "institution_display_name": {
-                "type": "text",
-                "fields": {
-                  "keyword": {
-                    "type": "keyword",
-                    "normalizer": "case_insensitive"
-                  }
-                }
-              },
-              "orcid": {
-                "type": "keyword",
-                "normalizer": "case_insensitive"
-              },
-              "ror": {
-                "type": "keyword",
-                "normalizer": "case_insensitive"
-              }
-            }
-          },
-          "citation_count": {
-            "type": "integer"
-          },
-          "concepts": {
-            "dynamic": "true",
-            "properties": {
-              "display_name": {
-                "type": "text",
-                "fields": {
-                  "keyword": {
-                    "type": "keyword",
-                    "normalizer": "case_insensitive"
-                  }
-                }
-              },
-              "field_of_study_id": {
-                "type": "keyword",
-                "normalizer": "case_insensitive"
-              },
-              "score": {
-                "type": "float"
-              }
-            }
-          },
-          "concepts_raw": {
-            "type": "keyword",
-            "index": false
-          },
-          "doc_type": {
-            "type": "keyword",
-            "normalizer": "case_insensitive"
-          },
-          "ids": {
-            "type": "object"
-          },
-          "issue": {
-            "type": "keyword",
-            "normalizer": "case_insensitive"
-          },
-          "journal": {
-            "properties": {
-              "all_issns": {
-                "type": "keyword",
-                "normalizer": "case_insensitive"
-              },
-              "journal_id": {
-                "type": "keyword"
-              },
-              "publisher": {
-                "type": "text",
-                "fields": {
-                  "keyword": {
-                    "type": "keyword",
-                    "normalizer": "case_insensitive"
-                  }
-                }
-              },
-              "title": {
-                "type": "text",
-                "fields": {
-                  "keyword": {
-                    "type": "keyword",
-                    "normalizer": "case_insensitive"
-                  }
-                }
-              }
-            }
-          },
-          "locations": {
-            "type": "keyword",
-            "normalizer": "case_insensitive"
-          },
-          "paper_id": {
-            "type": "keyword"
-          },
-          "publication_date": {
-            "type": "date"
-          },
-          "unpaywall": {
-            "properties": {
-              "best_host_type": {
-                "type": "keyword",
-                "normalizer": "case_insensitive"
-              },
-              "best_license": {
-                "type": "keyword",
-                "normalizer": "case_insensitive"
-              },
-              "best_url": {
-                "type": "keyword",
-                "normalizer": "case_insensitive"
-              },
-              "best_version": {
-                "type": "keyword",
-                "normalizer": "case_insensitive"
-              },
-              "genre": {
-                "type": "keyword",
-                "normalizer": "case_insensitive"
-              },
-              "has_green": {
-                "type": "boolean"
-              },
-              "is_oa_bool": {
-                "type": "boolean"
-              },
-              "journal_is_oa": {
-                "type": "boolean"
-              },
-              "oa_status": {
-                "type": "keyword",
-                "normalizer": "case_insensitive"
-              }
-            }
-          },
-          "volume": {
-            "type": "keyword"
-          },
-          "work_id": {
-            "type": "keyword"
-          },
-          "work_title": {
-            "type": "text",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "normalizer": "case_insensitive"
-              }
-            }
-          },
-          "year": {
-            "type": "integer"
-          }
-        }
-      },
-      "aliases": {
-        "works": {}
-      }
-    }
-  }
+	"index_patterns": ["works-*"],
+	"template": {
+		"settings": {
+			"index": {
+				"refresh_interval": "30s",
+				"analysis": {
+					"normalizer": {
+						"case_insensitive": {
+							"filter": "lowercase"
+						}
+					}
+				},
+				"number_of_shards": "1",
+				"number_of_replicas": "3"
+			}
+		},
+		"mappings": {
+			"dynamic_templates": [],
+			"properties": {
+				"work_id": {
+					"type": "keyword"
+				},
+				"citation_count": {
+					"type": "integer"
+				},
+				"issue": {
+					"normalizer": "case_insensitive",
+					"type": "keyword"
+				},
+				"year": {
+					"type": "integer"
+				},
+				"affiliations": {
+					"type": "nested",
+					"properties": {
+						"country": {
+							"normalizer": "case_insensitive",
+							"type": "keyword"
+						},
+						"country_code": {
+							"normalizer": "case_insensitive",
+							"type": "keyword"
+						},
+						"grid_id": {
+							"normalizer": "case_insensitive",
+							"type": "keyword"
+						},
+						"ror": {
+							"normalizer": "case_insensitive",
+							"type": "keyword"
+						},
+						"city": {
+							"normalizer": "case_insensitive",
+							"type": "keyword"
+						},
+						"institution_display_name": {
+							"type": "text",
+							"fields": {
+								"keyword": {
+									"normalizer": "case_insensitive",
+									"type": "keyword"
+								}
+							}
+						},
+						"orcid": {
+							"normalizer": "case_insensitive",
+							"type": "keyword"
+						},
+						"author_display_name": {
+							"type": "text",
+							"fields": {
+								"keyword": {
+									"normalizer": "case_insensitive",
+									"type": "keyword"
+								}
+							}
+						},
+						"author_id": {
+							"eager_global_ordinals": true,
+							"normalizer": "case_insensitive",
+							"norms": false,
+							"index": true,
+							"store": false,
+							"type": "keyword",
+							"split_queries_on_whitespace": false,
+							"index_options": "docs",
+							"doc_values": true
+						},
+						"author_sequence_number": {
+							"type": "integer"
+						}
+					}
+				},
+				"work_title": {
+					"type": "text",
+					"fields": {
+						"keyword": {
+							"normalizer": "case_insensitive",
+							"type": "keyword"
+						}
+					}
+				},
+				"doc_type": {
+					"normalizer": "case_insensitive",
+					"type": "keyword"
+				},
+				"paper_id": {
+					"type": "keyword"
+				},
+				"volume": {
+					"type": "keyword"
+				},
+				"unpaywall": {
+					"type": "object",
+					"properties": {
+						"best_host_type": {
+							"normalizer": "case_insensitive",
+							"type": "keyword"
+						},
+						"best_url": {
+							"normalizer": "case_insensitive",
+							"type": "keyword"
+						},
+						"oa_status": {
+							"normalizer": "case_insensitive",
+							"type": "keyword"
+						},
+						"has_green": {
+							"type": "boolean"
+						},
+						"genre": {
+							"normalizer": "case_insensitive",
+							"type": "keyword"
+						},
+						"best_license": {
+							"normalizer": "case_insensitive",
+							"type": "keyword"
+						},
+						"journal_is_oa": {
+							"type": "boolean"
+						},
+						"best_version": {
+							"normalizer": "case_insensitive",
+							"type": "keyword"
+						},
+						"is_oa_bool": {
+							"type": "boolean"
+						}
+					}
+				},
+				"concepts_raw": {
+					"index": false,
+					"type": "keyword"
+				},
+				"journal": {
+					"type": "object",
+					"properties": {
+						"journal_id": {
+							"type": "keyword"
+						},
+						"all_issns": {
+							"eager_global_ordinals": true,
+							"normalizer": "case_insensitive",
+							"norms": false,
+							"index": true,
+							"store": false,
+							"type": "keyword",
+							"split_queries_on_whitespace": false,
+							"index_options": "docs",
+							"doc_values": true
+						},
+						"publisher": {
+							"type": "text",
+							"fields": {
+								"keyword": {
+									"normalizer": "case_insensitive",
+									"type": "keyword"
+								}
+							}
+						},
+						"title": {
+							"type": "text",
+							"fields": {
+								"keyword": {
+									"normalizer": "case_insensitive",
+									"type": "keyword"
+								}
+							}
+						}
+					}
+				},
+				"concepts": {
+					"type": "object",
+					"properties": {
+						"score": {
+							"type": "float"
+						},
+						"display_name": {
+							"type": "text",
+							"fields": {
+								"keyword": {
+									"normalizer": "case_insensitive",
+									"type": "keyword"
+								}
+							}
+						},
+						"field_of_study_id": {
+							"normalizer": "case_insensitive",
+							"type": "keyword"
+						}
+					}
+				},
+				"ids": {
+					"type": "object"
+				},
+				"publication_date": {
+					"type": "date"
+				},
+				"locations": {
+					"normalizer": "case_insensitive",
+					"type": "keyword"
+				}
+			}
+		},
+		"aliases": {
+			"works": {}
+		}
+	}
 }
