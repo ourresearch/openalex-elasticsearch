@@ -2,9 +2,16 @@
   "template": {
     "settings": {
       "index": {
+        "refresh_interval": "1h",
+        "analysis": {
+          "normalizer": {
+            "lower": {
+              "filter": "lowercase"
+            }
+          }
+        },
         "number_of_shards": "1",
-        "auto_expand_replicas": "0-all",
-        "refresh_interval": "1h"
+        "auto_expand_replicas": "0-all"
       }
     },
     "mappings": {
@@ -12,6 +19,31 @@
         "abstract_inverted_index": {
           "type": "flattened",
           "index": false
+        },
+        "alternate_host_venues": {
+          "properties": {
+            "display_name": {
+              "type": "keyword"
+            },
+            "id": {
+              "type": "keyword"
+            },
+            "is_oa": {
+              "type": "boolean"
+            },
+            "license": {
+              "type": "keyword"
+            },
+            "type": {
+              "type": "keyword"
+            },
+            "url": {
+              "type": "keyword"
+            },
+            "version": {
+              "type": "keyword"
+            }
+          }
         },
         "alternate_locations": {
           "properties": {
@@ -42,16 +74,7 @@
             "author": {
               "properties": {
                 "display_name": {
-                  "type": "text",
-                  "fields": {
-                    "complete": {
-                      "type": "completion",
-                      "analyzer": "simple",
-                      "preserve_separators": true,
-                      "preserve_position_increments": true,
-                      "max_input_length": 50
-                    }
-                  }
+                  "type": "keyword"
                 },
                 "id": {
                   "type": "keyword",
@@ -71,16 +94,7 @@
                   "type": "keyword"
                 },
                 "display_name": {
-                  "type": "text",
-                  "fields": {
-                    "complete": {
-                      "type": "completion",
-                      "analyzer": "simple",
-                      "preserve_separators": true,
-                      "preserve_position_increments": true,
-                      "max_input_length": 50
-                    }
-                  }
+                  "type": "keyword"
                 },
                 "id": {
                   "type": "keyword"
@@ -95,7 +109,7 @@
             }
           }
         },
-        "bibio": {
+        "biblio": {
           "type": "flattened",
           "index": false
         },
@@ -138,6 +152,9 @@
               "preserve_separators": true,
               "preserve_position_increments": true,
               "max_input_length": 50
+            },
+            "keyword": {
+              "type": "keyword"
             }
           }
         },
@@ -145,8 +162,47 @@
           "type": "keyword",
           "index": false
         },
-        "genre": {
-          "type": "keyword"
+        "host_venue": {
+          "dynamic": "true",
+          "properties": {
+            "display_name": {
+              "type": "keyword"
+            },
+            "id": {
+              "type": "keyword"
+            },
+            "is_oa": {
+              "type": "boolean"
+            },
+            "issn": {
+              "type": "keyword",
+              "eager_global_ordinals": true
+            },
+            "issn_l": {
+              "type": "keyword"
+            },
+            "license": {
+              "type": "keyword"
+            },
+            "publisher": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "normalizer": "lower"
+                }
+              }
+            },
+            "type": {
+              "type": "keyword"
+            },
+            "url": {
+              "type": "keyword"
+            },
+            "version": {
+              "type": "keyword"
+            }
+          }
         },
         "id": {
           "type": "keyword",
@@ -156,9 +212,6 @@
           "type": "object",
           "dynamic": "true",
           "enabled": false
-        },
-        "is_oa": {
-          "type": "boolean"
         },
         "is_paratext": {
           "type": "boolean"
@@ -170,11 +223,18 @@
           "type": "flattened",
           "index": false
         },
-        "oa_status": {
-          "type": "keyword"
-        },
-        "oa_url": {
-          "type": "keyword"
+        "open_access": {
+          "properties": {
+            "is_oa": {
+              "type": "boolean"
+            },
+            "oa_status": {
+              "type": "keyword"
+            },
+            "oa_url": {
+              "type": "keyword"
+            }
+          }
         },
         "publication_date": {
           "type": "date"
@@ -192,6 +252,13 @@
           "type": "keyword",
           "index": false
         },
+        "title": {
+          "type": "keyword",
+          "index": false
+        },
+        "type": {
+          "type": "keyword"
+        },
         "updated_date": {
           "type": "date",
           "index": false
@@ -199,38 +266,6 @@
         "url": {
           "type": "keyword",
           "index": false
-        },
-        "venue": {
-          "properties": {
-            "display_name": {
-              "type": "text",
-              "fields": {
-                "autocomplete": {
-                  "type": "search_as_you_type",
-                  "doc_values": false,
-                  "max_shingle_size": 3
-                }
-              }
-            },
-            "id": {
-              "type": "keyword"
-            },
-            "issn": {
-              "type": "keyword",
-              "eager_global_ordinals": true
-            },
-            "issn_l": {
-              "type": "keyword"
-            },
-            "publisher": {
-              "type": "text",
-              "fields": {
-                "keyword": {
-                  "type": "keyword"
-                }
-              }
-            }
-          }
         }
       }
     },

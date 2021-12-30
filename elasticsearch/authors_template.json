@@ -1,0 +1,128 @@
+{
+  "template": {
+    "settings": {
+      "index": {
+        "refresh_interval": "1h",
+        "analysis": {
+          "normalizer": {
+            "lower": {
+              "filter": "lowercase"
+            }
+          }
+        },
+        "number_of_shards": "1",
+        "auto_expand_replicas": "0-all"
+      }
+    },
+    "mappings": {
+      "properties": {
+        "cited_by_count": {
+          "type": "integer"
+        },
+        "counts_by_year": {
+          "properties": {
+            "cited_by_count": {
+              "type": "integer"
+            },
+            "works_count": {
+              "type": "integer"
+            },
+            "year": {
+              "type": "integer"
+            }
+          }
+        },
+        "display_name": {
+          "type": "text",
+          "fields": {
+            "complete": {
+              "type": "completion",
+              "analyzer": "simple",
+              "preserve_separators": true,
+              "preserve_position_increments": true,
+              "max_input_length": 50
+            },
+            "keyword": {
+              "type": "keyword"
+            }
+          }
+        },
+        "display_name_alternatives": {
+          "type": "keyword",
+          "index": false
+        },
+        "id": {
+          "type": "keyword"
+        },
+        "ids": {
+          "type": "object",
+          "dynamic": "true",
+          "enabled": false
+        },
+        "last_known_institution": {
+          "dynamic": "true",
+          "properties": {
+            "country_code": {
+              "type": "keyword"
+            },
+            "display_name": {
+              "type": "keyword"
+            },
+            "id": {
+              "type": "keyword"
+            },
+            "ror": {
+              "type": "keyword"
+            },
+            "type": {
+              "type": "keyword"
+            }
+          }
+        },
+        "orcid": {
+          "type": "keyword",
+          "index": false
+        },
+        "updated_date": {
+          "type": "date",
+          "index": false
+        },
+        "works_api_url": {
+          "type": "keyword",
+          "index": false
+        },
+        "works_count": {
+          "type": "integer"
+        },
+        "x_concepts": {
+          "properties": {
+            "display_name": {
+              "type": "keyword",
+              "index": false
+            },
+            "id": {
+              "type": "keyword"
+            },
+            "level": {
+              "type": "integer",
+              "index": false,
+              "ignore_malformed": false,
+              "coerce": true
+            },
+            "score": {
+              "type": "float",
+              "index": false,
+              "ignore_malformed": false,
+              "coerce": true
+            },
+            "wikidata": {
+              "type": "keyword",
+              "index": false
+            }
+          }
+        }
+      }
+    },
+    "aliases": {}
+  }
+}

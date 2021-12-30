@@ -1,0 +1,15 @@
+metricbeat.modules:
+- module: logstash
+  metricsets:
+    - node
+    - node_stats
+  period: 10s
+  hosts: ["logstash:9600"]
+  xpack.enabled: true
+  strict.perms: false
+
+output:
+  elasticsearch:
+    hosts: ["${ES_HOST_MONITORING_PROD}"]
+    username: "${ES_USER_MONITORING_PROD}"
+    password: "${ES_PASSWORD_MONITORING_PROD}"
