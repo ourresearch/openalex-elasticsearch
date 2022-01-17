@@ -8,6 +8,7 @@ services:
     env_file:
       - .env
     volumes:
+      - ./bracket-filter.rb:/usr/share/bracket-filter.rb
       - ./jars/:/usr/share/jars/
       - ./pipeline/:/usr/share/logstash/pipeline/
       - ./sql_last_value.yml:/usr/share/sql_last_value.yml
