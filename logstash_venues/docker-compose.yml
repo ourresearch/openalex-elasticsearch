@@ -4,7 +4,7 @@ services:
     image: docker.elastic.co/logstash/logstash:7.15.1
     environment:
       - XPACK_MONITORING_ENABLED=false
-      - "LS_JAVA_OPTS=-Xmx2g -Xms2g"
+      - "LS_JAVA_OPTS=-Xmx1g -Xms1g"
     env_file:
       - .env
     volumes:
