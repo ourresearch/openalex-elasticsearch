@@ -5,6 +5,7 @@ services:
     environment:
       - XPACK_MONITORING_ENABLED=false
       - NODE_NAME=works
+      - PIPELINE_ID=works
       - "LS_JAVA_OPTS=-Xmx4g -Xms4g"
     env_file:
       - .env
