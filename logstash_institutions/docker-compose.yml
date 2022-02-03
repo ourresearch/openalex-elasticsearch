@@ -5,7 +5,7 @@ services:
     environment:
       - NODE_NAME=institutions
       - XPACK_MONITORING_ENABLED=false
-      - "LS_JAVA_OPTS=-Xmx1g -Xms1g"
+      - "LS_JAVA_OPTS=-Xmx3g -Xms3g"
     env_file:
       - .env
     volumes:
