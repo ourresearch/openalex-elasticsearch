@@ -1,0 +1,20 @@
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      templates:
+        - condition:
+            contains:
+              docker.container.image: logstash
+          config:
+            - module: logstash
+              log:
+                input:
+                  type: container
+                  paths:
+                    - /var/lib/docker/containers/${data.docker.container.id}/*.log
+
+output:
+  elasticsearch:
+    hosts: ["${ES_HOST_MONITORING_PROD}"]
+    username: "${ES_USER_MONITORING_PROD}"
+    password: "${ES_PASSWORD_MONITORING_PROD}"
