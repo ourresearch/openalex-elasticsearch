@@ -1,5 +1,6 @@
 http.host: 0.0.0.0
-node.name: venues
+node.name: works
+pipeline.id: works
 xpack.monitoring.elasticsearch.hosts:
 - http://elasticsearch:9200
 xpack.monitoring.enabled: false

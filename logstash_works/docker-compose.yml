@@ -12,7 +12,9 @@ services:
     volumes:
       - ./jars/:/usr/share/jars/
       - ./pipeline/:/usr/share/logstash/pipeline/
-      - ./sql_last_value.yml:/usr/share/sql_last_value.yml
+      - ./config/:/usr/share/logstash/config/
+      - ./sql_last_value_primary.yml:/usr/share/sql_last_value_primary.yml
+      - ./sql_last_value_merge.yml:/usr/share/sql_last_value_merge.yml
     command: logstash
   metricbeat:
     image: docker.elastic.co/beats/metricbeat:7.15.1
