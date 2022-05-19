@@ -11,6 +11,7 @@ services:
     volumes:
       - ./jars/:/usr/share/jars/
       - ./pipeline/:/usr/share/logstash/pipeline/
+      - ./config/:/usr/share/logstash/config/
       - ./sql_last_value.yml:/usr/share/sql_last_value.yml
     command: logstash
   metricbeat:
