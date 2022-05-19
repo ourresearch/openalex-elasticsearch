@@ -1,0 +1,4 @@
+- pipeline.id: authors_primary
+  path.config: "/usr/share/logstash/pipeline/authors_primary.conf"
+- pipeline.id: authors_merge
+  path.config: "/usr/share/logstash/pipeline/authors_merge.conf"
