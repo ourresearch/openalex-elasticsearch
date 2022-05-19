@@ -1,7 +1,7 @@
 version: "3"
 services:
   logstash:
-    image: docker.elastic.co/logstash/logstash:7.15.1
+    image: docker.elastic.co/logstash/logstash:7.17.2
     environment:
       - XPACK_MONITORING_ENABLED=false
       - NODE_NAME=works
@@ -17,7 +17,7 @@ services:
       - ./sql_last_value_merge.yml:/usr/share/sql_last_value_merge.yml
     command: logstash
   metricbeat:
-    image: docker.elastic.co/beats/metricbeat:7.15.1
+    image: docker.elastic.co/beats/metricbeat:7.17.2
     depends_on:
       - logstash
     env_file:
