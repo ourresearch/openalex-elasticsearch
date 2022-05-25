@@ -1,4 +1,0 @@
-- pipeline.id: venues_primary
-  path.config: "/usr/share/logstash/pipeline/venues_primary.conf"
-- pipeline.id: venues_merge
-  path.config: "/usr/share/logstash/pipeline/venues_merge.conf"

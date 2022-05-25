@@ -1,5 +1,0 @@
-http.host: 0.0.0.0
-node.name: venues
-xpack.monitoring.elasticsearch.hosts:
-- http://elasticsearch:9200
-xpack.monitoring.enabled: false

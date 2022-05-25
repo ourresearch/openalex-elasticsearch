@@ -1,4 +1,0 @@
-- pipeline.id: concepts_primary
-  path.config: "/usr/share/logstash/pipeline/concepts_primary.conf"
-- pipeline.id: concepts_merge
-  path.config: "/usr/share/logstash/pipeline/concepts_merge.conf"

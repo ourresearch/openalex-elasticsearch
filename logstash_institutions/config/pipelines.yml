@@ -1,4 +1,0 @@
-- pipeline.id: institutions_primary
-  path.config: "/usr/share/logstash/pipeline/institutions_primary.conf"
-- pipeline.id: institutions_merge
-  path.config: "/usr/share/logstash/pipeline/institutions_merge.conf"

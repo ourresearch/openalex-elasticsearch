@@ -1,4 +1,0 @@
-- pipeline.id: works_primary
-  path.config: "/usr/share/logstash/pipeline/works_primary.conf"
-- pipeline.id: works_merge
-  path.config: "/usr/share/logstash/pipeline/works_merge.conf"
