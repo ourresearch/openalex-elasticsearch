@@ -48,3 +48,5 @@ Start the app:
 Stop the app:
 1. Browse to the app directory with: `cd /mnt/logstash_volume/logstash`
 2. Run `docker-compose stop`
+
+Please send all bug reports and feature requests to support@openalex.org.
