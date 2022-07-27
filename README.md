@@ -33,7 +33,7 @@ for each index, and plan to add more replicas as we add additional nodes to supp
 
 #### Elasticsearch Index Template
 
-The template is located [here](/elasticsearch/works_template.json). Example queries are [here](/elasticsearch/queries.md).
+The template is located [here](/elasticsearch_templates/works_template.json). Example queries are [here](/elasticsearch_templates/queries.md).
 
 ### Logstash setup
 
