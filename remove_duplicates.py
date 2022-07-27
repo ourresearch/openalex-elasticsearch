@@ -2,11 +2,14 @@ import os
 from datetime import datetime, timedelta
 
 from elasticsearch_dsl import Search, connections
+import sentry_sdk
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import Session
 
 from models import Work
 from settings import ES_URL, WORKS_INDEX
+
+sentry_sdk.init(dsn=os.environ.get("SENTRY_DSN"))
 
 
 def remove_duplicates():
