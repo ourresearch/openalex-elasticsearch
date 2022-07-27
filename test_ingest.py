@@ -1,10 +1,11 @@
 import os
 from datetime import datetime, timedelta
+
+from elasticsearch_dsl import Search, connections
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import Session
-from models import Work
-from elasticsearch_dsl import Q, Search, connections
 
+from models import Work
 from settings import ES_URL, WORKS_INDEX
 
 
