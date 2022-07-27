@@ -13,6 +13,7 @@ sentry_sdk.init(dsn=os.environ.get("SENTRY_DSN"))
 
 
 def remove_duplicates():
+    """Removes duplicates coming from ingest into elasticsearch each hour."""
     engine = create_engine(os.getenv("DATABASE_URL"))
     session = Session(engine)
     connections.create_connection(hosts=[ES_URL], timeout=30)
@@ -74,7 +75,7 @@ def find_id_and_delete(id):
 def delete_from_elastic(duplicate_id, index):
     s = Search(index=index)
     s = s.filter("term", id=duplicate_id)
-    # s.delete()
+    s.delete()
     print(f"deleted duplicate id {duplicate_id} from index {index}")
 
 
