@@ -14,22 +14,26 @@ def remove_duplicates():
     session = Session(engine)
     connections.create_connection(hosts=[ES_URL], timeout=30)
 
+    duplicates = []
+
     two_hours_ago = datetime.now() - timedelta(hours=2)
-    three_hours_ago = two_hours_ago + timedelta(minutes=70)
+    three_hours_ten_minutes_ago = datetime.now() - timedelta(minutes=190)
 
     limit = 1
     offset = 1000
-    max_records_to_process = 1000000
+    max_records_to_process = 500000
 
     for i in range(1, int(max_records_to_process / offset)):
         works_batch = (
             session.query(Work)
-            .filter(Work.updated.between(three_hours_ago, two_hours_ago))
+            .filter(Work.updated.between(three_hours_ten_minutes_ago, two_hours_ago))
             .order_by(desc(Work.updated))
             .slice(limit, offset + 1)
             .all()
         )
         if not works_batch:
+            count = 0 if limit == 1 else limit
+            print(f"Summary: deleted {len(duplicates)} works out of {count} processed.")
             # no more results
             break
 
@@ -47,8 +51,9 @@ def remove_duplicates():
             offset = offset + 1
             formatted_id = f"https://openalex.org/W{work.id}"
             if elastic_ids.count(formatted_id) > 1:
+                duplicates.append(formatted_id)
                 find_id_and_delete(formatted_id)
-        print(offset)
+        # print(offset)
 
 
 def find_id_and_delete(id):
@@ -59,13 +64,15 @@ def find_id_and_delete(id):
     if s.count() == 2:
         record = response.hits[1]
         delete_from_elastic(record.id, record.meta.index)
+    elif s.count() > 2:
+        print(f"id {id} in elastic more than 2 times.")
 
 
 def delete_from_elastic(duplicate_id, index):
     s = Search(index=index)
     s = s.filter("term", id=duplicate_id)
-    s.delete()
-    print(f"deleted id {duplicate_id} from index {index}")
+    # s.delete()
+    print(f"deleted duplicate id {duplicate_id} from index {index}")
 
 
 if __name__ == "__main__":
