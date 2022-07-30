@@ -25,7 +25,7 @@ def remove_duplicates():
 
     limit = 1
     offset = 1000
-    max_records_to_process = 500000
+    max_records_to_process = 750000
 
     for i in range(1, int(max_records_to_process / offset)):
         works_batch = (
