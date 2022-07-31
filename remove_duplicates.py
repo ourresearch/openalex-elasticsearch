@@ -2,6 +2,7 @@ import os
 from datetime import datetime, timedelta
 
 from elasticsearch_dsl import Search, connections
+from elasticsearch import ConflictError
 import sentry_sdk
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import Session
@@ -73,10 +74,13 @@ def find_id_and_delete(id):
 
 
 def delete_from_elastic(duplicate_id, index):
-    s = Search(index=index)
-    s = s.filter("term", id=duplicate_id)
-    s.delete()
-    print(f"deleted duplicate id {duplicate_id} from index {index}")
+    try:
+        s = Search(index=index)
+        s = s.filter("term", id=duplicate_id)
+        s.delete()
+        print(f"deleted duplicate id {duplicate_id} from index {index}")
+    except ConflictError:
+        print(f"conflict error while deleting duplicate id {duplicate_id} from index {index}")
 
 
 if __name__ == "__main__":
