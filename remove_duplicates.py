@@ -21,8 +21,8 @@ def remove_duplicates():
 
     duplicates = []
 
-    two_hours_ago = datetime.now() - timedelta(hours=2)
-    three_hours_ten_minutes_ago = datetime.now() - timedelta(minutes=190)
+    two_hours_ago = datetime.utcnow() - timedelta(hours=2)
+    three_hours_ten_minutes_ago = datetime.utcnow() - timedelta(minutes=190)
 
     limit = 1
     offset = 1000
