@@ -12,6 +12,8 @@ if __name__ == "__main__":
     count = 0
 
     for chunk in pd.read_csv("s3://openalex-sandbox/merge-away-authors-2022-01-19.csv.gz", chunksize=chunk_size):
+        if count < 300000:
+            continue
         document_list = []
         for index, row in chunk.iterrows():
             count = count + 1
