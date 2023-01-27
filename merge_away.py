@@ -22,7 +22,8 @@ if __name__ == "__main__":
                 "merge_into_id": merge_into_id,
             }
             document_list.append(doc)
-        if count > 300000:
+
+        if count > 4700000:
             print(f"Count is {count}")
             helpers.bulk(es_client, document_list, index=MERGE_AUTHORS_INDEX)
 
