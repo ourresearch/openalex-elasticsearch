@@ -1,5 +1,6 @@
 import pandas as pd
 from elasticsearch import Elasticsearch, helpers
+from elasticsearch.helpers.errors import BulkIndexError
 
 from settings import ES_URL
 
@@ -23,5 +24,5 @@ if __name__ == "__main__":
             }
             actions.append(action)
 
-        print(f"Count is {count}")
-        helpers.bulk(client=es_client, actions=actions, index=AUTHORS_INDEX)
+        print(f"Count is {count} with last deleted author id {openalex_id}")
+        helpers.bulk(client=es_client, actions=actions, index=AUTHORS_INDEX, ignore_status=404)
