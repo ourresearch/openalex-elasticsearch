@@ -27,5 +27,6 @@ if __name__ == "__main__":
 
         print(f"Count is {count} with last deleted author id {openalex_id}")
         if count < 44400000:
+            print(f"Skipping this batch")
             continue
         helpers.bulk(client=es_client, actions=actions, index=AUTHORS_INDEX, ignore_status=404)
