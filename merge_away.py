@@ -12,6 +12,7 @@ if __name__ == "__main__":
     key = "https://openalex.org/A"
     count = 0
     AUTHORS_INDEX = "authors-v10"
+    openalex_id = None
 
     for chunk in pd.read_csv("s3://openalex-sandbox/merge-away-authors-2022-01-19.csv.gz", chunksize=chunk_size):
         actions = []
