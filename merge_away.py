@@ -6,7 +6,7 @@ from settings import ES_URL
 
 
 if __name__ == "__main__":
-    es_client = Elasticsearch(ES_URL, timeout=30)
+    es_client = Elasticsearch(ES_URL, timeout=60)
     chunk_size = 100000
     MERGE_AUTHORS_INDEX = "merge-authors"
     key = "https://openalex.org/A"
@@ -18,8 +18,6 @@ if __name__ == "__main__":
         actions = []
         for index, row in chunk.iterrows():
             count = count + 1
-            if count < 1200000:
-                continue
             openalex_id = f"{key}{row[0]}"
             action = {
                 "_id": openalex_id,
@@ -28,4 +26,6 @@ if __name__ == "__main__":
             actions.append(action)
 
         print(f"Count is {count} with last deleted author id {openalex_id}")
+        if count < 44400000:
+            continue
         helpers.bulk(client=es_client, actions=actions, index=AUTHORS_INDEX, ignore_status=404)
