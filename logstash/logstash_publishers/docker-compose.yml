@@ -3,7 +3,7 @@ services:
   logstash:
     image: docker.elastic.co/logstash/logstash:7.17.2
     environment:
-      - NODE_NAME=institutions
+      - NODE_NAME=publishers
       - XPACK_MONITORING_ENABLED=false
       - "LS_JAVA_OPTS=-Xmx3g -Xms3g"
     env_file:
