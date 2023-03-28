@@ -14,7 +14,7 @@ if __name__ == "__main__":
     AUTHORS_INDEX = "authors-v10"
     openalex_id = None
 
-    for chunk in pd.read_csv("s3://openalex-sandbox/merge-away-authors-2022-01-19.csv.gz", chunksize=chunk_size):
+    for chunk in pd.read_csv("s3://openalex-sandbox/merge-authors-2023-03-23.csv.gz", chunksize=chunk_size):
         actions = []
         for index, row in chunk.iterrows():
             count = count + 1
@@ -26,7 +26,4 @@ if __name__ == "__main__":
             actions.append(action)
 
         print(f"Count is {count} with last deleted author id {openalex_id}")
-        if count < 44400000:
-            print(f"Skipping this batch")
-            continue
         helpers.bulk(client=es_client, actions=actions, index=AUTHORS_INDEX, ignore_status=404)
