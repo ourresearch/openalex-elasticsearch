@@ -18,7 +18,7 @@ if __name__ == "__main__":
         actions = []
         for index, row in chunk.iterrows():
             count = count + 1
-            openalex_id = f"{key}{row[0]}"
+            openalex_id = row[0]
             action = {
                 "_id": openalex_id,
                 "_op_type": "delete"
