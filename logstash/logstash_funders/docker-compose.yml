@@ -1,0 +1,23 @@
+version: "3"
+services:
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.17.2
+    environment:
+      - NODE_NAME=funders
+      - XPACK_MONITORING_ENABLED=false
+      - "LS_JAVA_OPTS=-Xmx3g -Xms3g"
+    env_file:
+      - .env
+    volumes:
+      - ./jars/:/usr/share/jars/
+      - ./pipeline/:/usr/share/logstash/pipeline/
+      - ./sql_last_value.yml:/usr/share/sql_last_value.yml
+    command: logstash
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:7.17.2
+    depends_on:
+      - logstash
+    env_file:
+      - .env
+    volumes:
+      - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
