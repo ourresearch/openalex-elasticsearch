@@ -71,6 +71,7 @@ def main(args):
         "INSERT INTO logs.entity_counts (query_timestamp, works, authors, sources, institutions, publishers, funders, concepts) VALUES(:query_timestamp, :works, :authors, :sources, :institutions, :publishers, :funders, :concepts)",
         params,
     )
+    session.commit()
 
 
 if __name__ == "__main__":
