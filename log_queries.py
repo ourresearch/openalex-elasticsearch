@@ -120,6 +120,13 @@ def main(args):
         "https://api.openalex.org/publishers",
         "https://api.openalex.org/funders",
         "https://api.openalex.org/concepts",
+        "https://api.openalex.org/works?filter=has_doi:true",
+        "https://api.openalex.org/authors?filter=has_orcid:true",
+        "https://api.openalex.org/works?filter=is_oa:true",
+        "https://api.openalex.org/works?filter=has_references:true",
+        "https://api.openalex.org/authors?filter=works_count:0",
+        "https://api.openalex.org/authors?filter=works_count:1",
+        "https://api.openalex.org/authors?filter=works_count:%3E5000",
         # institution parsing
         "https://api.openalex.org/works?filter=authorships.institutions.id:null,has_doi:true",
         "https://api.openalex.org/works?filter=has_raw_affiliation_string:false,has_doi:true",
