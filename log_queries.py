@@ -126,7 +126,7 @@ def main(args):
         "https://api.openalex.org/works?filter=has_raw_affiliation_string:true,authorships.institutions.id:null,has_doi:true",
     ]
     for api_query in count_queries_to_run:
-        query_count(api_query, session=None)
+        query_count(api_query, session=session)
 
     session.close()
 
