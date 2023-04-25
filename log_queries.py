@@ -23,12 +23,12 @@ root_logger = logging.getLogger()
 logger = root_logger.getChild(__name__)
 
 import requests
-from sqlalchemy import create_engine, desc
+from sqlalchemy import create_engine, desc, text
 from sqlalchemy.orm import Session
 
 
 def get_entity_count(entity: str) -> int:
-    url = f"http://api.openalex.org/{entity}"
+    url = f"https://api.openalex.org/{entity}"
     r = requests.get(url)
     return r.json()["meta"]["count"]
 
@@ -53,9 +53,34 @@ def entity_counts_queries():
     }
 
 
+def query_count(query_url: str, session: Session, commit=True):
+    if not 'select=' in query_url:
+        query_url += 'select=id'
+    if not 'mailto=' in query_url:
+        query_url += 'mailto=dev@ourresearch.org'
+    timestamp = datetime.utcnow()
+    r = requests.get(query_url)
+    num_results = r.json()["meta"]["count"]
+    q = """
+    INSERT INTO logs.count_queries
+    (query_timestamp, num_results, query_url)
+    VALUES(:query_timestamp, :num_results, :query_url)
+    """
+    params = {
+        "query_timestamp": timestamp,
+        "num_results": num_results,
+        "query_url": query_url,
+    }
+    session.execute(text(q), params)
+    if commit is True:
+        session.commit()
+
+
 def main(args):
     engine = create_engine(os.getenv("DATABASE_URL"))
     session = Session(engine)
+
+    # entity counts queries
     q_results = entity_counts_queries()
     params = {
         "query_timestamp": q_results["timestamp"].isoformat(),
@@ -72,6 +97,27 @@ def main(args):
         params,
     )
     session.commit()
+
+    # run arbitrary queries and get number of results, to store in logs.count_queries
+    # TODO: this could replace entity counts queries above
+    count_queries_to_run = [
+        # entity counts
+        "https://api.openalex.org/works",
+        "https://api.openalex.org/authors",
+        "https://api.openalex.org/sources",
+        "https://api.openalex.org/institutions",
+        "https://api.openalex.org/publishers",
+        "https://api.openalex.org/funders",
+        "https://api.openalex.org/concepts",
+        # institution parsing
+        "https://api.openalex.org/works?filter=authorships.institutions.id:null,has_doi:true",
+        "https://api.openalex.org/works?filter=has_raw_affiliation_string:false,has_doi:true",
+        "https://api.openalex.org/works?filter=has_raw_affiliation_string:true,authorships.institutions.id:null,has_doi:true&select=id,doi,authorships",
+    ]
+    for api_query in count_queries_to_run:
+        query_count(api_query, session=session)
+
+    session.close()
 
 
 if __name__ == "__main__":
