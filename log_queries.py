@@ -23,6 +23,7 @@ root_logger = logging.getLogger()
 logger = root_logger.getChild(__name__)
 
 import requests
+import urllib.parse
 from sqlalchemy import create_engine, desc, text
 from sqlalchemy.orm import Session
 
@@ -54,13 +55,21 @@ def entity_counts_queries():
 
 
 def query_count(query_url: str, session: Session, commit=True):
-    if not 'select=' in query_url:
-        query_url += 'select=id'
-    if not 'mailto=' in query_url:
-        query_url += 'mailto=dev@ourresearch.org'
+    # prepare the url
+    scheme, netloc, path, query_string, fragment = urllib.parse.urlsplit(query_url)
+    query_params = urllib.parse.parse_qs(query_string)
+    if 'select' not in query_params:
+        query_params.update({'select': 'id'})
+    if 'mailto' not in query_params:
+        query_params.update({'mailto': 'dev@ourresearch.org'})
+    new_query_string = urllib.parse.urlencode(query_params)
+    query_url = urllib.parse.urlunsplit((scheme, netloc, path, new_query_string, fragment))
+    # get timestamp
     timestamp = datetime.utcnow()
+    # make the request
     r = requests.get(query_url)
     num_results = r.json()["meta"]["count"]
+    # insert into db
     q = """
     INSERT INTO logs.count_queries
     (query_timestamp, num_results, query_url)
@@ -112,7 +121,7 @@ def main(args):
         # institution parsing
         "https://api.openalex.org/works?filter=authorships.institutions.id:null,has_doi:true",
         "https://api.openalex.org/works?filter=has_raw_affiliation_string:false,has_doi:true",
-        "https://api.openalex.org/works?filter=has_raw_affiliation_string:true,authorships.institutions.id:null,has_doi:true&select=id,doi,authorships",
+        "https://api.openalex.org/works?filter=has_raw_affiliation_string:true,authorships.institutions.id:null,has_doi:true",
     ]
     for api_query in count_queries_to_run:
         query_count(api_query, session=session)
