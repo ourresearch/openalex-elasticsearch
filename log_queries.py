@@ -4,7 +4,7 @@ DESCRIPTION = (
     """log the results of some queries to the `logs` schema in openalex-db (postgres)"""
 )
 
-import sys, os, time
+import sys, os, time, json
 from pathlib import Path
 from datetime import datetime
 from timeit import default_timer as timer
@@ -87,6 +87,35 @@ def query_count(query_url: str, session: Session, commit=True):
         session.commit()
 
 
+def query_groupby(query_url: str, session: Session, commit=True):
+    # prepare the url
+    if 'mailto=' not in query_url:
+        query_url += '&mailto=dev@ourresearch.org'
+    # get timestamp
+    timestamp = datetime.utcnow()
+    # make the request
+    logger.debug(f"query_url: {query_url}")
+    r = requests.get(query_url)
+    try:
+        response = r.json()["group_by"]
+    except KeyError:
+        logger.debug(r.status_code, r.text)
+    # insert into db
+    q = """
+    INSERT INTO logs.groupbys
+    (query_timestamp, query_url, response)
+    VALUES(:query_timestamp, :query_url, :response)
+    """
+    params = {
+        "query_timestamp": timestamp,
+        "query_url": query_url,
+        "response": json.dumps(response)
+    }
+    session.execute(text(q), params)
+    if commit is True:
+        session.commit()
+
+
 def main(args):
     engine = create_engine(os.getenv("DATABASE_URL"))
     session = Session(engine)
@@ -134,6 +163,13 @@ def main(args):
     ]
     for api_query in count_queries_to_run:
         query_count(api_query, session=session)
+
+    # groupby queries
+    groupby_queries = [
+        "https://api.openalex.org/works?group_by=authorships.institutions.country_code",
+    ]
+    for api_query in groupby_queries:
+        query_groupby(api_query, session=session)
 
     session.close()
 
