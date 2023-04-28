@@ -23,6 +23,7 @@ root_logger = logging.getLogger()
 logger = root_logger.getChild(__name__)
 
 import requests
+from requests import JSONDecodeError
 from sqlalchemy import create_engine, desc, text
 from sqlalchemy.orm import Session
 
@@ -46,7 +47,10 @@ def entity_counts_queries():
         "concepts",
     ]
     for entity in entities:
-        counts[entity] = get_entity_count(entity)
+        try:
+            counts[entity] = get_entity_count(entity)
+        except JSONDecodeError:
+            logger.error(f"JSONDecodeError encountered when doing entity_counts_queries for entity {entity}")
     return {
         "timestamp": timestamp,
         "counts": counts,
@@ -71,6 +75,9 @@ def query_count(query_url: str, session: Session, commit=True):
         num_results = r.json()["meta"]["count"]
     except KeyError:
         logger.debug(r.status_code, r.text)
+    except JSONDecodeError:
+        logger.error(f"JSONDecodeError encountered when running query {query_url}")
+        return
     # insert into db
     q = """
     INSERT INTO logs.count_queries
@@ -100,6 +107,9 @@ def query_groupby(query_url: str, session: Session, commit=True):
         response = r.json()["group_by"]
     except KeyError:
         logger.debug(r.status_code, r.text)
+    except JSONDecodeError:
+        logger.error(f"JSONDecodeError encountered when running query {query_url}")
+        return
     # insert into db
     q = """
     INSERT INTO logs.groupbys
