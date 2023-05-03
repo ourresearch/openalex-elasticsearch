@@ -39,7 +39,7 @@ class GroupbyValues(Document):
         name = GROUPBY_VALUES_INDEX
 
 
-@backoff.on_predicate(backoff.expo, lambda x: x.status_code >= 500, max_tries=4)
+@backoff.on_predicate(backoff.expo, lambda x: x.status_code >= 400, max_tries=4)
 def make_request(field, endpoint):
     r = requests.get(
         f"https://api.openalex.org/{endpoint}?group_by={field}&mailto=dev@ourresearch.org"
@@ -94,7 +94,6 @@ def main(args):
         for field in valid_fields:
             try:
                 r = make_request(field, endpoint=entity)
-                logger.debug(f"status code: {r.status_code}")
                 response = r.json()
                 if "error" not in response and response["meta"]["count"] < 200:
                     values = [item["key"] for item in response["group_by"]]
