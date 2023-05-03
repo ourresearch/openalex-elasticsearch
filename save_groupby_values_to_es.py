@@ -109,7 +109,7 @@ def main(args):
             f"finished {entity}. saved or updated {num_saved_or_updated} records in elasticsearch"
         )
         logger.info(f"ERRORS ENCOUNTERED: {errors}")
-        logger.info()
+        logger.info("----")
 
 
 if __name__ == "__main__":
