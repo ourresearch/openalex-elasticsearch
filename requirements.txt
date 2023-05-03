@@ -1,3 +1,4 @@
+backoff==2.2.1
 elasticsearch-dsl==7.4.0
 pandas==1.5.3
 psycopg2==2.9.3
