@@ -94,6 +94,7 @@ def main(args):
         for field in valid_fields:
             try:
                 r = make_request(field, endpoint=entity)
+                logger.debug(f"status code: {r.status_code}")
                 response = r.json()
                 if "error" not in response and response["meta"]["count"] < 200:
                     values = [item["key"] for item in response["group_by"]]
