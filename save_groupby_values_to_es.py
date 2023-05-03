@@ -85,6 +85,7 @@ def main(args):
     ]
     for entity in entities:
         errors = []
+        errors_forbidden = []
         logger.info(f"ENTITY: {entity}")
         valid_fields = requests.get(
             f"https://api.openalex.org/{entity}/valid_fields"
@@ -94,6 +95,8 @@ def main(args):
         for field in valid_fields:
             try:
                 r = make_request(field, endpoint=entity)
+                if r.status_code == 403:
+                    errors_forbidden.append(f"entity: {entity}, field: {field}")
                 response = r.json()
                 if "error" not in response and response["meta"]["count"] < 200:
                     values = [item["key"] for item in response["group_by"]]
@@ -108,7 +111,8 @@ def main(args):
         logger.info(
             f"finished {entity}. saved or updated {num_saved_or_updated} records in elasticsearch"
         )
-        logger.info(f"ERRORS ENCOUNTERED: {errors}")
+        logger.info(f"ERRORS ENCOUNTERED -- FORBIDDEN: {errors_forbidden}")
+        logger.info(f"ERRORS ENCOUNTERED -- UNKNOWN: {errors}")
         logger.info("----")
 
 
