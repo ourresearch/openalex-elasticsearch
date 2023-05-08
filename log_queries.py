@@ -106,7 +106,9 @@ def query_groupby(query_url: str, session: Session, commit=True):
     try:
         response = r.json()["group_by"]
     except KeyError:
-        logger.debug(r.status_code, r.text)
+        logger.error("KeyError")
+        logger.error(r.status_code, r.text)
+        return
     except JSONDecodeError:
         logger.error(f"JSONDecodeError encountered when running query {query_url}")
         return
