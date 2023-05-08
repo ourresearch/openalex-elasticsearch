@@ -4,7 +4,7 @@ DESCRIPTION = """Get the results from all simple groupby queries, then, for resu
 
 import sys, os, time
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 from datetime import datetime
 from timeit import default_timer as timer
 
@@ -19,7 +19,7 @@ except ImportError:
 import requests
 from requests import JSONDecodeError
 import backoff
-from elasticsearch_dsl import Search, connections, Document, Text, Keyword
+from elasticsearch_dsl import Search, connections, Document, Text, Keyword, Object
 from elasticsearch.exceptions import NotFoundError
 from settings import ES_URL, GROUPBY_VALUES_INDEX
 
@@ -34,6 +34,7 @@ class GroupbyValues(Document):
     entity = Keyword()
     group_by = Keyword()
     values = Text()
+    buckets = Object()
 
     class Index:
         name = GROUPBY_VALUES_INDEX
@@ -47,7 +48,9 @@ def make_request(field, endpoint):
     return r
 
 
-def elasticsearch_save_or_update(entity: str, group_by: str, values: List[str]):
+def elasticsearch_save_or_update(
+    entity: str, group_by: str, values: List[str], buckets: List[Dict[str, str]]
+):
     # check if exists
     s = Search(index=GROUPBY_VALUES_INDEX)
     s = s.filter("term", entity=entity)
@@ -60,10 +63,12 @@ def elasticsearch_save_or_update(entity: str, group_by: str, values: List[str]):
         # it exists. update the values
         record_id = response[0].meta.id
         g = GroupbyValues.get(record_id)
-        g.update(values=values)
+        g.update(values=values, buckets=buckets)
     else:
         # add a new record
-        g = GroupbyValues(entity=entity, group_by=group_by, values=values)
+        g = GroupbyValues(
+            entity=entity, group_by=group_by, values=values, buckets=buckets
+        )
         g.save()
 
 
@@ -101,9 +106,17 @@ def main(args):
                 response = r.json()
                 if "error" not in response and response["meta"]["count"] < 200:
                     values = [item["key"] for item in response["group_by"]]
+                    # also save "buckets" which includes both the key and the key_display_name
+                    buckets = [
+                        {
+                            "key": item["key"],
+                            "key_display_name": item["key_display_name"],
+                        }
+                        for item in response["group_by"]
+                    ]
                     # save to elasticsearch
                     elasticsearch_save_or_update(
-                        entity=entity, group_by=field, values=values
+                        entity=entity, group_by=field, values=values, buckets=buckets
                     )
                     num_saved_or_updated += 1
             except JSONDecodeError:
