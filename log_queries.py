@@ -24,6 +24,7 @@ logger = root_logger.getChild(__name__)
 
 import requests
 from requests import JSONDecodeError
+import backoff
 from sqlalchemy import create_engine, desc, text
 from sqlalchemy.orm import Session
 
@@ -50,7 +51,9 @@ def entity_counts_queries():
         try:
             counts[entity] = get_entity_count(entity)
         except JSONDecodeError:
-            logger.error(f"JSONDecodeError encountered when doing entity_counts_queries for entity {entity}")
+            logger.error(
+                f"JSONDecodeError encountered when doing entity_counts_queries for entity {entity}"
+            )
     return {
         "timestamp": timestamp,
         "counts": counts,
@@ -90,6 +93,53 @@ def query_count(query_url: str, session: Session, commit=True):
         "query_url": query_url,
     }
     session.execute(text(q), params)
+    if commit is True:
+        session.commit()
+
+
+@backoff.on_predicate(backoff.expo, lambda x: x.status_code >= 429, max_tries=4)
+def make_search_request(query_url):
+    r = requests.get(
+        f"https://api.openalex.org/{endpoint}?search={query}&mailto=dev@ourresearch.org"
+    )
+    return r
+
+
+def make_all_author_name_queries(session: Session, commit=True):
+    # get timestamp
+    timestamp = datetime.utcnow()
+    # get author names
+    fp = Path("./author_names.txt")
+    if not fp.exists():
+        logger.error(f"file does not exist: {fp}. skipping author name queries")
+        return
+    names = fp.read_text().split("\n")
+    for name in names:
+        query_url = (
+            f"https://api.openalex.org/authors?search={name}&mailto=dev@ourresearch.org"
+        )
+        r = make_search_request(query_url)
+        try:
+            num_results = r.json()["meta"]["count"]
+        except KeyError:
+            logger.debug(r.status_code, r.text)
+            continue
+        except JSONDecodeError:
+            logger.error(f"JSONDecodeError encountered when querying for name {name}")
+            continue
+        # insert into db
+        q = """
+        INSERT INTO logs.author_names
+        (query_timestamp, search_term, num_results, query_url)
+        VALUES(:query_timestamp, :search_term, :num_results, :query_url)
+        """
+        params = {
+            "query_timestamp": timestamp,
+            "search_term": name,
+            "num_results": num_results,
+            "query_url": query_url,
+        }
+        session.execute(text(q), params)
     if commit is True:
         session.commit()
 
@@ -383,6 +433,8 @@ def main(args):
     ]
     for api_query in groupby_queries:
         query_groupby(api_query, session=session)
+
+    make_all_author_name_queries(session=session)
 
     session.close()
 
