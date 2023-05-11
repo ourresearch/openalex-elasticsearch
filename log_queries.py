@@ -99,9 +99,7 @@ def query_count(query_url: str, session: Session, commit=True):
 
 @backoff.on_predicate(backoff.expo, lambda x: x.status_code >= 429, max_tries=4)
 def make_search_request(query_url):
-    r = requests.get(
-        f"https://api.openalex.org/{endpoint}?search={query}&mailto=dev@ourresearch.org"
-    )
+    r = requests.get(query_url)
     return r
 
 
@@ -199,6 +197,9 @@ def main(args):
         params,
     )
     session.commit()
+
+    # make queries for author_name table
+    make_all_author_name_queries(session=session)
 
     # run arbitrary queries and get number of results, to store in logs.count_queries
     # TODO: this could replace entity counts queries above
@@ -433,8 +434,6 @@ def main(args):
     ]
     for api_query in groupby_queries:
         query_groupby(api_query, session=session)
-
-    make_all_author_name_queries(session=session)
 
     session.close()
 
