@@ -30,6 +30,12 @@ logger = root_logger.getChild(__name__)
 EMAIL = "dev@ourresearch.org"
 
 
+@backoff.on_exception(backoff.expo, RequestException, max_time=30)
+@backoff.on_predicate(backoff.expo, lambda x: x.status_code >= 429, max_time=30)
+def make_request(url, params):
+    return requests.get(url, params=params)
+
+
 def get_all_publishers(email=None):
     cursor = "*"
 
@@ -55,7 +61,7 @@ def get_all_publishers(email=None):
         url = f"https://api.openalex.org/{endpoint}"
         if email:
             params["mailto"] = email
-        r = requests.get(url, params=params)
+        r = make_request(url, params=params)
         page_with_results = r.json()
         if loop_index == 0:
             logger.debug(f"meta count property is {page_with_results['meta']['count']}")
@@ -79,12 +85,6 @@ def get_true_val_from_groupby(group_by: List[Dict]) -> int:
             if gb["key"] == "true":
                 return gb["count"]
     return -999
-
-
-@backoff.on_exception(backoff.expo, RequestException, max_time=30)
-@backoff.on_predicate(backoff.expo, lambda x: x.status_code >= 429, max_time=30)
-def make_request(url, params):
-    return requests.get(url, params=params)
 
 
 def get_groupby_result(
