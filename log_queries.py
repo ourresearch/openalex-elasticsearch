@@ -125,17 +125,19 @@ def make_all_author_name_queries(session: Session, commit=True):
         except JSONDecodeError:
             logger.error(f"JSONDecodeError encountered when querying for name {name}")
             continue
+        database = "openalex"
         # insert into db
         q = """
         INSERT INTO logs.author_names
-        (query_timestamp, search_term, num_results, query_url)
-        VALUES(:query_timestamp, :search_term, :num_results, :query_url)
+        (query_timestamp, search_term, num_results, query_url, database)
+        VALUES(:query_timestamp, :search_term, :num_results, :query_url, :database)
         """
         params = {
             "query_timestamp": timestamp,
             "search_term": name,
             "num_results": num_results,
             "query_url": query_url,
+            "database": database,
         }
         session.execute(text(q), params)
     if commit is True:
