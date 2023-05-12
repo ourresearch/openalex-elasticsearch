@@ -75,8 +75,9 @@ def get_all_publishers(email=None):
         if loop_index in [5, 10, 20, 50, 100] or loop_index % 500 == 0:
             logger.debug(f"{loop_index} api requests made so far")
     logger.debug(
-        f"done. made {loop_index} api requests. collected {len(publishers)} works"
+        f"done. made {loop_index} api requests. collected {len(publishers)} {endpoint}"
     )
+    return publishers
 
 
 def get_true_val_from_groupby(group_by: List[Dict]) -> int:
