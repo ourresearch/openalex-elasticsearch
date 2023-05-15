@@ -143,12 +143,16 @@ def get_institution_benchmarks(session: Session, commit=True):
             url = f"https://api.openalex.org/works?filter={filters}"
             num_works_has_doi = get_count_from_api(url)
 
+            filters = f"institutions.id:{institution_id},is_oa:true"
+            url = f"https://api.openalex.org/works?filter={filters}"
+            num_works_open_access = get_count_from_api(url)
+
 
             # save to database
             q = """
             INSERT INTO logs.institution_scopus_compare
-            (collection_start, institution_id, ror, display_name, scopus_id, num_works, num_works_article_type, num_works_has_doi, query_timestamp, "database")
-            VALUES(:collection_start, :institution_id, :ror, :display_name, :scopus_id, :num_works, :num_works_article_type, :num_works_has_doi, :query_timestamp, :database)
+            (collection_start, institution_id, ror, display_name, scopus_id, num_works, num_works_article_type, num_works_has_doi, query_timestamp, "database", num_works_open_access)
+            VALUES(:collection_start, :institution_id, :ror, :display_name, :scopus_id, :num_works, :num_works_article_type, :num_works_has_doi, :query_timestamp, :database, :num_works_open_access)
             """
             params = {
                 "collection_start": collection_start,
@@ -161,6 +165,7 @@ def get_institution_benchmarks(session: Session, commit=True):
                 "num_works_has_doi": num_works_has_doi,
                 "query_timestamp": query_timestamp,
                 "database": database,
+                "num_works_open_access": num_works_open_access,
             }
             session.execute(text(q), params)
     if commit is True:
