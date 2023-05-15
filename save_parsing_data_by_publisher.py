@@ -85,6 +85,7 @@ def get_true_val_from_groupby(group_by: List[Dict]) -> int:
         for gb in group_by:
             if gb["key"] == "true":
                 return gb["count"]
+    # failed to find a true value
     return -999
 
 

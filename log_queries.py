@@ -4,7 +4,7 @@ DESCRIPTION = (
     """log the results of some queries to the `logs` schema in openalex-db (postgres)"""
 )
 
-import sys, os, time, json
+import sys, os, time, json, csv
 from pathlib import Path
 from datetime import datetime
 from timeit import default_timer as timer
@@ -23,7 +23,7 @@ root_logger = logging.getLogger()
 logger = root_logger.getChild(__name__)
 
 import requests
-from requests import JSONDecodeError
+from requests import JSONDecodeError, RequestException
 import backoff
 from sqlalchemy import create_engine, desc, text
 from sqlalchemy.orm import Session
@@ -60,6 +60,19 @@ def entity_counts_queries():
     }
 
 
+def get_count_from_api(query_url: str) -> int:
+    r = make_request(query_url)
+    try:
+        num_results = r.json()["meta"]["count"]
+    except (RequestException, JSONDecodeError, KeyError, ValueError):
+        logger.error(
+            f"error when trying to make request with url {query_url}"
+        )
+        logger.exception("message")
+        return -999
+    return num_results
+
+
 def query_count(query_url: str, session: Session, commit=True):
     # prepare the url
     if "select=" not in query_url:
@@ -73,14 +86,7 @@ def query_count(query_url: str, session: Session, commit=True):
     timestamp = datetime.utcnow()
     # make the request
     logger.debug(f"query_url: {query_url}")
-    r = requests.get(query_url)
-    try:
-        num_results = r.json()["meta"]["count"]
-    except KeyError:
-        logger.debug(r.status_code, r.text)
-    except JSONDecodeError:
-        logger.error(f"JSONDecodeError encountered when running query {query_url}")
-        return
+    num_results = get_count_from_api(query_url)
     # insert into db
     q = """
     INSERT INTO logs.count_queries
@@ -97,10 +103,68 @@ def query_count(query_url: str, session: Session, commit=True):
         session.commit()
 
 
-@backoff.on_predicate(backoff.expo, lambda x: x.status_code >= 429, max_tries=4)
-def make_search_request(query_url):
-    r = requests.get(query_url)
+@backoff.on_exception(backoff.expo, RequestException, max_time=30)
+@backoff.on_predicate(backoff.expo, lambda x: x.status_code >= 429, max_time=30)
+def make_request(query_url, params=None):
+    if params is None:
+        r = requests.get(query_url)
+    else:
+        r = requests.get(query_url, params=params)
     return r
+
+
+def get_institution_benchmarks(session: Session, commit=True):
+    # get timestamp
+    collection_start = datetime.utcnow()
+    # get institution ids
+    fp = Path("./institutions_for_scopus_compare.csv")
+    if not fp.exists():
+        logger.error(f"file does not exist: {fp}. skipping author name queries")
+        return
+    with fp.open('r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            institution_id = row['openalex_id']
+            ror = row['ror']
+            display_name = row['display_name']
+            scopus_id = row['scopus_id']
+            database = "openalex"
+            query_timestamp = datetime.utcnow()
+            # get data
+            filters = f"institutions.id:{institution_id}"
+            url = f"https://api.openalex.org/works?filter={filters}"
+            num_works = get_count_from_api(url)
+
+            filters = f"institutions.id:{institution_id},type:journal-article"
+            url = f"https://api.openalex.org/works?filter={filters}"
+            num_works_article_type = get_count_from_api(url)
+
+            filters = f"institutions.id:{institution_id},has_doi:true"
+            url = f"https://api.openalex.org/works?filter={filters}"
+            num_works_has_doi = get_count_from_api(url)
+
+
+            # save to database
+            q = """
+            INSERT INTO logs.institution_scopus_compare
+            (collection_start, institution_id, ror, display_name, scopus_id, num_works, num_works_article_type, num_works_has_doi, query_timestamp, "database")
+            VALUES(:collection_start, :institution_id, :ror, :display_name, :scopus_id, :num_works, :num_works_article_type, :num_works_has_doi, :query_timestamp, :database)
+            """
+            params = {
+                "collection_start": collection_start,
+                "institution_id": int(institution_id.split('I')[-1]),
+                "ror": ror,
+                "display_name": display_name,
+                "scopus_id": scopus_id,
+                "num_works": num_works,
+                "num_works_article_type": num_works_article_type,
+                "num_works_has_doi": num_works_has_doi,
+                "query_timestamp": query_timestamp,
+                "database": database,
+            }
+            session.execute(text(q), params)
+    if commit is True:
+        session.commit()
 
 
 def make_all_author_name_queries(session: Session, commit=True):
@@ -116,7 +180,7 @@ def make_all_author_name_queries(session: Session, commit=True):
         query_url = (
             f"https://api.openalex.org/authors?search={name}&mailto=dev@ourresearch.org"
         )
-        r = make_search_request(query_url)
+        r = make_request(query_url)
         try:
             num_results = r.json()["meta"]["count"]
         except KeyError:
@@ -202,6 +266,9 @@ def main(args):
 
     # make queries for author_name table
     make_all_author_name_queries(session=session)
+
+    # make queries for institution_scopus_compare table
+    get_institution_benchmarks(session=session)
 
     # run arbitrary queries and get number of results, to store in logs.count_queries
     # TODO: this could replace entity counts queries above
