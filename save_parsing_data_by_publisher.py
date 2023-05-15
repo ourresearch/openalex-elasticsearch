@@ -156,6 +156,12 @@ def get_data_one_publisher(
                 continue
             else:
                 filters["type"] = work_type
+                is_oa = get_groupby_true_count(
+                    publisher_openalex_id,
+                    "is_oa",
+                    filters=filters,
+                    email=email,
+                )
                 has_raw_affiliation_string = get_groupby_true_count(
                     publisher_openalex_id,
                     "has_raw_affiliation_string",
@@ -187,6 +193,7 @@ def get_data_one_publisher(
                     "has_abstract": has_abstract,
                     "has_pdf_url": has_pdf_url,
                     "timestamp_collection_start": timestamp_collection_start,
+                    "is_oa": is_oa,
                 }
             )
     return publisher_data
@@ -195,8 +202,8 @@ def get_data_one_publisher(
 def write_row_to_db(data_dict: Dict[str, Any], session: Session, commit=True):
     q = """
     INSERT INTO logs.landing_page_stats_by_publisher
-    (query_timestamp, publisher_id, publisher_display_name, work_type, publication_year_range, works_count, has_raw_affiliation, is_corresponding, has_abstract, has_pdf_url, timestamp_collection_start)
-    VALUES(:query_timestamp, :publisher_id, :publisher_display_name, :work_type, :publication_year_range, :works_count, :has_raw_affiliation, :is_corresponding, :has_abstract, :has_pdf_url, :timestamp_collection_start)
+    (query_timestamp, publisher_id, publisher_display_name, work_type, publication_year_range, works_count, has_raw_affiliation, is_corresponding, has_abstract, has_pdf_url, timestamp_collection_start, is_oa)
+    VALUES(:query_timestamp, :publisher_id, :publisher_display_name, :work_type, :publication_year_range, :works_count, :has_raw_affiliation, :is_corresponding, :has_abstract, :has_pdf_url, :timestamp_collection_start, :is_oa)
     """
     session.execute(text(q), data_dict)
     if commit is True:
