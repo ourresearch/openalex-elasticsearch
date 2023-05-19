@@ -1,0 +1,17 @@
+version: "3"
+services:
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.7.1
+    environment:
+      - XPACK_MONITORING_ENABLED=false
+      - NODE_NAME=openalex_api_usage
+      - PIPELINE_ID=openalex_api_usage
+      - "LS_JAVA_OPTS=-Xmx8g -Xms8g"
+    env_file:
+      - .env
+    volumes:
+      - ./pipeline/:/usr/share/logstash/pipeline/
+      - ./logstash.yml:/usr/share/logstash/config/logstash.yml
+    command: logstash
+    ports:
+      - "8080:8080"

@@ -1,0 +1,3 @@
+node.name: openalex_api_usage
+pipeline.id: openalex_api_usage
+xpack.monitoring.enabled: false
