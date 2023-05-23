@@ -15,3 +15,12 @@ services:
     command: logstash
     ports:
       - "8080:8080"
+      - "9600:9600"
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:8.7.1
+    depends_on:
+      - logstash
+    env_file:
+      - .env
+    volumes:
+      - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml

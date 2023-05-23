@@ -1,3 +1,6 @@
+http.host: 0.0.0.0
 node.name: openalex_api_usage
+pipeline.batch.size: 1000
 pipeline.id: openalex_api_usage
+pipeline.workers: 6
 xpack.monitoring.enabled: false
