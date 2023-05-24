@@ -119,7 +119,7 @@ def get_institution_benchmarks(session: Session, commit=True):
     # get institution ids
     fp = Path("./institutions_for_scopus_compare.csv")
     if not fp.exists():
-        logger.error(f"file does not exist: {fp}. skipping author name queries")
+        logger.error(f"file does not exist: {fp}. skipping institution queries")
         return
     with fp.open('r') as f:
         reader = csv.DictReader(f)
