@@ -74,11 +74,9 @@ def find_id_and_delete(id):
     s = s.filter("term", id=id)
     s = s.sort("-@timestamp")
     response = s.execute()
-    if s.count() == 2:
-        record = response.hits[1]
-        delete_from_elastic(record.id, record.meta.index)
-    elif s.count() > 2:
-        print(f"id {id} in elastic more than 2 times.")
+    if s.count() > 1:
+        for record in response.hits[1:]:
+            delete_from_elastic(record.id, record.meta.index)
 
 
 def delete_from_elastic(duplicate_id, index):
