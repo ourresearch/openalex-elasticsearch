@@ -13,9 +13,10 @@ def remove_duplicates():
     for chunk in pd.read_csv("s3://openalex-sandbox/work_ids_es_duplicates_20230619.txt", chunksize=chunk_size):
         for index, row in chunk.iterrows():
             count = count + 1
+            if row[0] < 2129341946:
+                continue
             openalex_id = f"https://openalex.org/W{row[0]}"
-            if count > 2114000:
-                find_id_and_delete(openalex_id)
+            find_id_and_delete(openalex_id)
         print(count)
 
 
