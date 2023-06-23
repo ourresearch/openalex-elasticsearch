@@ -14,7 +14,8 @@ def remove_duplicates():
         for index, row in chunk.iterrows():
             count = count + 1
             openalex_id = f"https://openalex.org/W{row[0]}"
-            find_id_and_delete(openalex_id)
+            if count > 2114000:
+                find_id_and_delete(openalex_id)
         print(count)
 
 
