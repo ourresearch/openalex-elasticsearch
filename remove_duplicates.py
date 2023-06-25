@@ -19,13 +19,13 @@ def remove_duplicates():
 
     duplicates = []
 
-    two_hours_ago = (datetime.utcnow() - timedelta(hours=2)).isoformat()
     three_hours_ago = (datetime.utcnow() - timedelta(hours=3)).isoformat()
+    four_hours_ago = (datetime.utcnow() - timedelta(hours=4)).isoformat()
 
     per_page = 200
 
     # initial run
-    url = f"https://api.openalex.org/works?filter=from_updated_date:{three_hours_ago},to_updated_date:{two_hours_ago}&api_key={API_KEY}&select=id&per-page={per_page}&cursor=*"
+    url = f"https://api.openalex.org/works?filter=from_updated_date:{four_hours_ago},to_updated_date:{three_hours_ago}&api_key={API_KEY}&select=id&per-page={per_page}&cursor=*"
     r = requests.get(url)
     initial_count = r.json()["meta"]["count"]
     initial_ids = [work["id"] for work in r.json()["results"]]
@@ -46,7 +46,7 @@ def remove_duplicates():
     # loop run
     for i in range(1, int(initial_count / per_page)):
         print(f"loop {i} out of {int(initial_count / per_page)}")
-        url = f"https://api.openalex.org/works?filter=from_updated_date:{three_hours_ago},to_updated_date:{two_hours_ago}&api_key={API_KEY}&select=id&cursor={cursor}&per-page={per_page}"
+        url = f"https://api.openalex.org/works?filter=from_updated_date:{four_hours_ago},to_updated_date:{three_hours_ago}&api_key={API_KEY}&select=id&cursor={cursor}&per-page={per_page}"
         print(url)
         r = requests.get(url)
         ids = [work["id"] for work in r.json()["results"]]
