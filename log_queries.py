@@ -112,6 +112,15 @@ def make_request(query_url, params=None):
         r = requests.get(query_url, params=params)
     return r
 
+@backoff.on_exception(backoff.expo, RequestException, max_time=120)
+@backoff.on_predicate(backoff.expo, lambda x: x.status_code >= 429, max_time=120)
+def make_request_long_running(query_url, params=None):
+    if params is None:
+        r = requests.get(query_url)
+    else:
+        r = requests.get(query_url, params=params)
+    return r
+
 
 def get_institution_benchmarks(session: Session, commit=True):
     # get timestamp
@@ -234,6 +243,39 @@ def query_groupby(query_url: str, session: Session, commit=True):
     # insert into db
     q = """
     INSERT INTO logs.groupbys
+    (query_timestamp, query_url, response)
+    VALUES(:query_timestamp, :query_url, :response)
+    """
+    params = {
+        "query_timestamp": timestamp,
+        "query_url": query_url,
+        "response": json.dumps(response),
+    }
+    session.execute(text(q), params)
+    if commit is True:
+        session.commit()
+
+def query_stats(query_url: str, session: Session, commit=True):
+    # prepare the url
+    if "mailto=" not in query_url:
+        query_url += "&mailto=dev@ourresearch.org"
+    # get timestamp
+    timestamp = datetime.utcnow()
+    # make the request
+    logger.debug(f"query_url: {query_url}")
+    r = make_request_long_running(query_url)
+    try:
+        response = r.json()["group_by"]
+    except KeyError:
+        logger.error("KeyError")
+        logger.error(r.status_code, r.text)
+        return
+    except JSONDecodeError:
+        logger.error(f"JSONDecodeError encountered when running query {query_url}")
+        return
+    # insert into db
+    q = """
+    INSERT INTO logs.stats_queries
     (query_timestamp, query_url, response)
     VALUES(:query_timestamp, :query_url, :response)
     """
@@ -508,6 +550,14 @@ def main(args):
     ]
     for api_query in groupby_queries:
         query_groupby(api_query, session=session)
+
+    stats_queries = [
+        "https://api.openalex.org/works/stats/?filter=has_doi:true",
+        "https://api.openalex.org/works/stats/",
+    ]
+    logger.debug(f"making stats queries ({len(stats_queries)} queries)")
+    for api_query in stats_queries:
+        query_stats(api_query, session=session)
 
     session.close()
 
