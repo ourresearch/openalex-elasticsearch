@@ -4,61 +4,69 @@ from datetime import datetime, timedelta
 from elasticsearch_dsl import Search, connections
 from elasticsearch import ConflictError
 import sentry_sdk
-from sqlalchemy import create_engine, desc
-from sqlalchemy.orm import Session
-
-from models import Work
+import requests
 from settings import ES_URL, WORKS_INDEX
 
 sentry_sdk.init(dsn=os.environ.get("SENTRY_DSN"))
 
+API_KEY = os.environ.get("API_KEY")
+
 
 def remove_duplicates():
     """Removes duplicates coming from ingest into elasticsearch each hour."""
-    engine = create_engine(os.getenv("DATABASE_URL"))
-    session = Session(engine)
+    start_time = datetime.utcnow()
     connections.create_connection(hosts=[ES_URL], timeout=30)
 
     duplicates = []
 
-    two_hours_ago = datetime.utcnow() - timedelta(hours=2)
-    three_hours_ten_minutes_ago = datetime.utcnow() - timedelta(minutes=190)
+    three_hours_ago = (datetime.utcnow() - timedelta(hours=3)).isoformat()
+    four_hours_ago = (datetime.utcnow() - timedelta(hours=4)).isoformat()
 
-    limit = 1
-    offset = 1000
-    max_records_to_process = 3000000
+    per_page = 200
 
-    for i in range(1, int(max_records_to_process / offset)):
-        works_batch = (
-            session.query(Work)
-            .filter(Work.updated.between(three_hours_ten_minutes_ago, two_hours_ago))
-            .order_by(desc(Work.updated))
-            .slice(limit, offset + 1)
-            .all()
-        )
-        if not works_batch:
-            count = 0 if limit == 1 else limit
-            print(f"Summary: deleted {len(duplicates)} works out of {count} processed.")
-            # no more results
-            break
+    # initial run
+    url = f"https://api.openalex.org/works?filter=from_updated_date:{four_hours_ago},to_updated_date:{three_hours_ago}&api_key={API_KEY}&select=id&per-page={per_page}&cursor=*"
+    r = requests.get(url)
+    initial_count = r.json()["meta"]["count"]
+    initial_ids = [work["id"] for work in r.json()["results"]]
+    cursor = r.json()["meta"]["next_cursor"]
 
-        db_ids = [f"https://openalex.org/W{work.id}" for work in works_batch]
+    s = Search(index=WORKS_INDEX)
+    s = s.extra(size=2000)
+    s = s.source(["id", "updated"])
+    s = s.filter("terms", id=initial_ids)
+    response = s.execute()
+    elastic_ids = [r.id for r in response]
+
+    for work_id in initial_ids:
+        if elastic_ids.count(work_id) > 1:
+            duplicates.append(work_id)
+            find_id_and_delete(work_id)
+
+    # loop run
+    for i in range(1, int(initial_count / per_page)):
+        print(f"loop {i} out of {int(initial_count / per_page)}")
+        url = f"https://api.openalex.org/works?filter=from_updated_date:{four_hours_ago},to_updated_date:{three_hours_ago}&api_key={API_KEY}&select=id&cursor={cursor}&per-page={per_page}"
+        print(url)
+        r = requests.get(url)
+        ids = [work["id"] for work in r.json()["results"]]
+        cursor = r.json()["meta"]["next_cursor"]
 
         s = Search(index=WORKS_INDEX)
         s = s.extra(size=2000)
         s = s.source(["id", "updated"])
-        s = s.filter("terms", id=db_ids)
+        s = s.filter("terms", id=ids)
         response = s.execute()
         elastic_ids = [r.id for r in response]
 
-        for work in works_batch:
-            limit = limit + 1
-            offset = offset + 1
-            formatted_id = f"https://openalex.org/W{work.id}"
-            if elastic_ids.count(formatted_id) > 1:
-                duplicates.append(formatted_id)
-                find_id_and_delete(formatted_id)
-        # print(offset)
+        for work_id in ids:
+            if elastic_ids.count(work_id) > 1:
+                duplicates.append(work_id)
+                find_id_and_delete(work_id)
+
+    end_time = datetime.utcnow()
+
+    print(f"deleted {len(duplicates)} duplicates in {end_time - start_time}")
 
 
 def find_id_and_delete(id):
@@ -66,11 +74,9 @@ def find_id_and_delete(id):
     s = s.filter("term", id=id)
     s = s.sort("-@timestamp")
     response = s.execute()
-    if s.count() == 2:
-        record = response.hits[1]
-        delete_from_elastic(record.id, record.meta.index)
-    elif s.count() > 2:
-        print(f"id {id} in elastic more than 2 times.")
+    if s.count() > 1:
+        for record in response.hits[1:]:
+            delete_from_elastic(record.id, record.meta.index)
 
 
 def delete_from_elastic(duplicate_id, index):
