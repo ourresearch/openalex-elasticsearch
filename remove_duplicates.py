@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timedelta
 
+import backoff
 from elasticsearch_dsl import Search, connections
 from elasticsearch import ConflictError
 import sentry_sdk
@@ -25,8 +26,8 @@ def remove_duplicates():
     per_page = 200
 
     # initial run
-    url = f"https://api.openalex.org/works?filter=from_updated_date:{four_hours_ago},to_updated_date:{three_hours_ago}&api_key={API_KEY}&select=id&per-page={per_page}&cursor=*"
-    r = requests.get(url)
+    cursor = "*"
+    r = call_openalex_api(cursor, four_hours_ago, per_page, three_hours_ago)
     initial_count = r.json()["meta"]["count"]
     initial_ids = [work["id"] for work in r.json()["results"]]
     cursor = r.json()["meta"]["next_cursor"]
@@ -46,9 +47,7 @@ def remove_duplicates():
     # loop run
     for i in range(1, int(initial_count / per_page)):
         print(f"loop {i} out of {int(initial_count / per_page)}")
-        url = f"https://api.openalex.org/works?filter=from_updated_date:{four_hours_ago},to_updated_date:{three_hours_ago}&api_key={API_KEY}&select=id&cursor={cursor}&per-page={per_page}"
-        print(url)
-        r = requests.get(url)
+        r = call_openalex_api(cursor, four_hours_ago, per_page, three_hours_ago)
         ids = [work["id"] for work in r.json()["results"]]
         cursor = r.json()["meta"]["next_cursor"]
 
@@ -67,6 +66,14 @@ def remove_duplicates():
     end_time = datetime.utcnow()
 
     print(f"deleted {len(duplicates)} duplicates in {end_time - start_time}")
+
+
+@backoff.on_exception(backoff.expo, requests.exceptions.RequestException, max_tries=3)
+def call_openalex_api(cursor, four_hours_ago, per_page, three_hours_ago):
+    url = f"https://api.openalex.org/works?filter=from_updated_date:{four_hours_ago},to_updated_date:{three_hours_ago}&api_key={API_KEY}&select=id&per-page={per_page}&cursor={cursor}"
+    print(url)
+    r = requests.get(url)
+    return r
 
 
 def find_id_and_delete(id):
