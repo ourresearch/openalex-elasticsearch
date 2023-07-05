@@ -258,14 +258,17 @@ def query_groupby(query_url: str, session: Session, commit=True):
 def query_stats(query_url: str, session: Session, commit=True):
     # prepare the url
     if "mailto=" not in query_url:
-        query_url += "&mailto=dev@ourresearch.org"
+        if "?" not in query_url:
+            query_url += "?mailto=dev@ourresearch.org"
+        else:
+            query_url += "&mailto=dev@ourresearch.org"
     # get timestamp
     timestamp = datetime.utcnow()
     # make the request
     logger.debug(f"query_url: {query_url}")
     r = make_request_long_running(query_url)
     try:
-        response = r.json()["group_by"]
+        response = r.json()["stats"]
     except KeyError:
         logger.error("KeyError")
         logger.error(r.status_code, r.text)
