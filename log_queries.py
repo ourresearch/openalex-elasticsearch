@@ -144,7 +144,7 @@ def get_institution_benchmarks(session: Session, commit=True):
             url = f"https://api.openalex.org/works?filter={filters}"
             num_works = get_count_from_api(url)
 
-            filters = f"institutions.id:{institution_id},type:journal-article"
+            filters = f"institutions.id:{institution_id},type:journal-article|article"
             url = f"https://api.openalex.org/works?filter={filters}"
             num_works_article_type = get_count_from_api(url)
 
