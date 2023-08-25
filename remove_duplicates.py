@@ -73,7 +73,7 @@ def call_openalex_api(cursor, four_hours_ago, per_page, three_hours_ago):
     url = f"https://api.openalex.org/works?filter=from_updated_date:{four_hours_ago},to_updated_date:{three_hours_ago}&api_key={API_KEY}&select=id&per-page={per_page}&cursor={cursor}"
     print(url)
     r = requests.get(url)
-    return r.json()
+    return r
 
 
 def find_id_and_delete(id):
