@@ -70,7 +70,7 @@ def remove_duplicates():
 
 @backoff.on_exception(backoff.expo, (requests.exceptions.RequestException, requests.exceptions.JSONDecodeError), max_tries=5)
 def call_openalex_api(cursor, four_hours_ago, per_page, three_hours_ago):
-    url = f"https://api.openalex.org/works?filter=from_updated_date:{four_hours_ago},to_updated_date:{three_hours_ago}&api_key={API_KEY}&select=id&per-page={per_page}&cursor={cursor}"
+    url = f"https://api.openalex.org/works?filter=from_updated_date:{four_hours_ago},to_updated_date:{three_hours_ago}&mailto=team@ourresearch.org&select=id&per-page={per_page}&cursor={cursor}"
     print(url)
     r = requests.get(url)
     return r
