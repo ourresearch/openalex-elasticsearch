@@ -68,7 +68,7 @@ def remove_duplicates():
     print(f"deleted {len(duplicates)} duplicates in {end_time - start_time}")
 
 
-@backoff.on_exception(backoff.expo, (requests.exceptions.RequestException, requests.exceptions.JSONDecodeError), max_tries=3)
+@backoff.on_exception(backoff.expo, (requests.exceptions.RequestException, requests.exceptions.JSONDecodeError), max_tries=5)
 def call_openalex_api(cursor, four_hours_ago, per_page, three_hours_ago):
     url = f"https://api.openalex.org/works?filter=from_updated_date:{four_hours_ago},to_updated_date:{three_hours_ago}&api_key={API_KEY}&select=id&per-page={per_page}&cursor={cursor}"
     print(url)
