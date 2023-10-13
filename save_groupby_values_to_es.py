@@ -105,15 +105,16 @@ def main(args):
                     continue
                 response = r.json()
                 if "error" not in response and response["meta"]["count"] < 200:
-                    values = [item["key"] for item in response["group_by"]]
-                    # also save "buckets" which includes both the key and the key_display_name
-                    buckets = [
-                        {
-                            "key": item["key"],
-                            "key_display_name": item["key_display_name"],
-                        }
-                        for item in response["group_by"]
-                    ]
+                    values = []
+                    buckets = []
+                    for item in response["group_by"]:
+                        if item["count"] > 0:  # we want to exclude zero-count items for these top-level group-bys
+                            values.append(item["key"])
+                            # also save "buckets" which includes both the key and the key_display_name
+                            buckets.append({
+                                "key": item["key"],
+                                "key_display_name": item["key_display_name"],
+                            })
                     # save to elasticsearch
                     elasticsearch_save_or_update(
                         entity=entity, group_by=field, values=values, buckets=buckets
