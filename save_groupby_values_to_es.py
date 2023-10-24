@@ -43,7 +43,7 @@ class GroupbyValues(Document):
 @backoff.on_predicate(backoff.expo, lambda x: x.status_code >= 429, max_tries=4)
 def make_request(field, endpoint):
     r = requests.get(
-        f"https://api.openalex.org/{endpoint}?group_by={field}&mailto=dev@ourresearch.org"
+        f"https://api.openalex.org/{endpoint}?group_by={field}&mailto=dev@ourresearch.org&bypass_cache=true"
     )
     return r
 
@@ -93,7 +93,7 @@ def main(args):
         errors_forbidden = []
         logger.info(f"ENTITY: {entity}")
         valid_fields = requests.get(
-            f"https://api.openalex.org/{entity}/valid_fields"
+            f"https://api.openalex.org/{entity}/valid_fields?bypass_cache=true"
         ).json()
         logger.info(f"{len(valid_fields)} valid_fields")
         num_saved_or_updated = 0
