@@ -345,6 +345,7 @@ def main(args):
         "https://api.openalex.org/works?filter=authorships.institutions.id:null,has_doi:true",
         "https://api.openalex.org/works?filter=has_raw_affiliation_string:false,has_doi:true",
         "https://api.openalex.org/works?filter=has_raw_affiliation_string:true,authorships.institutions.id:null,has_doi:true",
+        "https://api.openalex.org/works?filter=open_access.is_oa:true,open_access.oa_status:closed",
     ]
     for api_query in count_queries_to_run:
         query_count(api_query, session=session)
@@ -366,6 +367,12 @@ def main(args):
         for field in valid_fields:
             url = f"https://api.openalex.org/{entity}?group_by={field}&mailto=dev@ourresearch.org"
             query_groupby(url, session=session)
+    # filtered groupby queries
+    filtered_groupby_queries_to_run = [
+        "https://api.openalex.org/works?filter=open_access.is_oa:true&group_by=open_access.oa_status",
+    ]
+    for api_query in filtered_groupby_queries_to_run:
+        query_groupby(api_query, session=session)
 
     stats_queries = [
         "https://api.openalex.org/works/stats/?filter=has_doi:true",
