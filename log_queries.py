@@ -370,6 +370,7 @@ def main(args):
     # filtered groupby queries
     filtered_groupby_queries_to_run = [
         "https://api.openalex.org/works?filter=open_access.is_oa:true&group_by=open_access.oa_status",
+        "https://api.openalex.org/works?filter=open_access.is_oa:false&group_by=open_access.oa_status",
     ]
     for api_query in filtered_groupby_queries_to_run:
         query_groupby(api_query, session=session)
