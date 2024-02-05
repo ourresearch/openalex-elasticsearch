@@ -104,7 +104,7 @@ def main(args):
                     errors_forbidden.append(f"entity: {entity}, field: {field}")
                     continue
                 response = r.json()
-                if "error" not in response and response["meta"]["count"] < 200:
+                if "error" not in response and response["meta"]["groups_count"] < 200:
                     values = []
                     buckets = []
                     for item in response["group_by"]:
