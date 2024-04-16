@@ -346,6 +346,10 @@ def main(args):
         "https://api.openalex.org/works?filter=has_raw_affiliation_string:false,has_doi:true",
         "https://api.openalex.org/works?filter=has_raw_affiliation_string:true,authorships.institutions.id:null,has_doi:true",
         "https://api.openalex.org/works?filter=open_access.is_oa:true,open_access.oa_status:closed",
+        # topics tracking
+        "https://api.openalex.org/sources?filter=topics.id:null",
+        "https://api.openalex.org/authors?filter=topics.id:null",
+        "https://api.openalex.org/institutions?filter=topics.id:null",
     ]
     for api_query in count_queries_to_run:
         query_count(api_query, session=session)
