@@ -350,6 +350,9 @@ def main(args):
         "https://api.openalex.org/sources?filter=topics.id:null",
         "https://api.openalex.org/authors?filter=topics.id:null",
         "https://api.openalex.org/institutions?filter=topics.id:null",
+        # APCs
+        "https://api.openalex.org/works?filter=apc_list.value_usd:>0",
+        "https://api.openalex.org/works?filter=apc_paid.value_usd:>0",
     ]
     for api_query in count_queries_to_run:
         query_count(api_query, session=session)
@@ -375,6 +378,8 @@ def main(args):
     filtered_groupby_queries_to_run = [
         "https://api.openalex.org/works?filter=open_access.is_oa:true&group_by=open_access.oa_status",
         "https://api.openalex.org/works?filter=open_access.is_oa:false&group_by=open_access.oa_status",
+        "https://api.openalex.org/works?filter=apc_list.value_usd:>0&group_by=open_access.oa_status",
+        "https://api.openalex.org/works?filter=apc_paid.value_usd:>0&group_by=open_access.oa_status",
         # elsevier delayed oa bronze (ticket 1747)
         "https://api.openalex.org/works?filter=primary_location.source.host_organization_lineage:P4310320990,primary_location.license:publisher-specific-oa&group_by=open_access.oa_status",
     ]
