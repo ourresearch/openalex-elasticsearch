@@ -384,6 +384,8 @@ def main(args):
         "https://api.openalex.org/works?filter=apc_paid.value_usd:>0&group_by=open_access.oa_status",
         # elsevier delayed oa bronze (ticket 1747)
         "https://api.openalex.org/works?filter=primary_location.source.host_organization_lineage:P4310320990,primary_location.license:publisher-specific-oa&group_by=open_access.oa_status",
+        # DataCite ingest
+        "https://api.openalex.org/works?filter=indexed_in:datacite&group_by=type",
     ]
     for api_query in filtered_groupby_queries_to_run:
         query_groupby(api_query, session=session)
