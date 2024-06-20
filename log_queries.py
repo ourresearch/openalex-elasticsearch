@@ -353,6 +353,8 @@ def main(args):
         # APCs
         "https://api.openalex.org/works?filter=apc_list.value_usd:>0",
         "https://api.openalex.org/works?filter=apc_paid.value_usd:>0",
+        # FWCI
+        "https://api.openalex.org/works?filter=fwci:>0",
     ]
     for api_query in count_queries_to_run:
         query_count(api_query, session=session)
