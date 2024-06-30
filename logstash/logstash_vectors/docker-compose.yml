@@ -1,0 +1,15 @@
+version: "3"
+services:
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.14.1
+    environment:
+      - XPACK_MONITORING_ENABLED=false
+      - NODE_NAME=works
+      - PIPELINE_ID=works
+      - "LS_JAVA_OPTS=-Xmx6g -Xms6g"
+    env_file:
+      - .env
+    volumes:
+      - ./jars/:/usr/share/jars/
+      - ./pipeline/:/usr/share/logstash/pipeline/
+    command: logstash
