@@ -343,8 +343,8 @@ def main(args):
         "https://api.openalex.org/authors?filter=works_count:%3E5000",
         # institution parsing
         "https://api.openalex.org/works?filter=authorships.institutions.id:null,has_doi:true",
-        "https://api.openalex.org/works?filter=has_raw_affiliation_string:false,has_doi:true",
-        "https://api.openalex.org/works?filter=has_raw_affiliation_string:true,authorships.institutions.id:null,has_doi:true",
+        "https://api.openalex.org/works?filter=has_raw_affiliation_strings:false,has_doi:true",
+        "https://api.openalex.org/works?filter=has_raw_affiliation_strings:true,authorships.institutions.id:null,has_doi:true",
         "https://api.openalex.org/works?filter=open_access.is_oa:true,open_access.oa_status:closed",
         # topics tracking
         "https://api.openalex.org/sources?filter=topics.id:null",
