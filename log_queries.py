@@ -82,6 +82,8 @@ def query_count(query_url: str, session: Session, commit=True):
             query_url += "&select=id"
     if "mailto=" not in query_url:
         query_url += "&mailto=dev@ourresearch.org"
+    if "bypass_cache=" not in query_url:
+        query_url += "&bypass_cache=true"
     # get timestamp
     timestamp = datetime.utcnow()
     # make the request
@@ -226,6 +228,8 @@ def query_groupby(query_url: str, session: Session, commit=True):
     # prepare the url
     if "mailto=" not in query_url:
         query_url += "&mailto=dev@ourresearch.org"
+    if "bypass_cache=" not in query_url:
+        query_url += "&bypass_cache=true"
     # get timestamp
     timestamp = datetime.utcnow()
     # make the request
@@ -355,6 +359,7 @@ def main(args):
         "https://api.openalex.org/works?filter=apc_paid.value_usd:>0",
         # FWCI
         "https://api.openalex.org/works?filter=fwci:>0",
+        "https://api.openalex.org/works?filter=fwci:>-1",
     ]
     for api_query in count_queries_to_run:
         query_count(api_query, session=session)
