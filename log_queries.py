@@ -391,6 +391,8 @@ def main(args):
         "https://api.openalex.org/works?filter=primary_location.source.host_organization_lineage:P4310320990,primary_location.license:publisher-specific-oa&group_by=open_access.oa_status",
         # DataCite ingest
         "https://api.openalex.org/works?filter=indexed_in:datacite&group_by=type",
+        # pubmed work type information
+        "https://api.openalex.org/works?filter=has_pmid:true&group_by=type",
     ]
     for api_query in filtered_groupby_queries_to_run:
         query_groupby(api_query, session=session)
