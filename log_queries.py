@@ -393,6 +393,9 @@ def main(args):
         "https://api.openalex.org/works?filter=indexed_in:datacite&group_by=type",
         # pubmed work type information
         "https://api.openalex.org/works?filter=has_pmid:true&group_by=type",
+        # citations funnel project
+        "https://api.openalex.org/works?filter=referenced_works_count:>0&group_by=type",
+        "https://api.openalex.org/works?filter=mag_only:false,referenced_works_count:>0&group_by=type",
     ]
     for api_query in filtered_groupby_queries_to_run:
         query_groupby(api_query, session=session)
