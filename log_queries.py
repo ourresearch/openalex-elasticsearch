@@ -262,42 +262,6 @@ def query_groupby(query_url: str, session: Session, commit=True):
         session.commit()
     return
 
-def query_stats(query_url: str, session: Session, commit=True):
-    # prepare the url
-    if "mailto=" not in query_url:
-        if "?" not in query_url:
-            query_url += "?mailto=dev@ourresearch.org"
-        else:
-            query_url += "&mailto=dev@ourresearch.org"
-    # get timestamp
-    timestamp = datetime.utcnow()
-    # make the request
-    logger.debug(f"query_url: {query_url}")
-    r = make_request_long_running(query_url)
-    try:
-        response = r.json()["stats"]
-    except KeyError:
-        logger.error("KeyError")
-        logger.error(r.status_code, r.text)
-        return
-    except JSONDecodeError:
-        logger.error(f"JSONDecodeError encountered when running query {query_url}")
-        return
-    # insert into db
-    q = """
-    INSERT INTO logs.stats_queries
-    (query_timestamp, query_url, response)
-    VALUES(:query_timestamp, :query_url, :response)
-    """
-    params = {
-        "query_timestamp": timestamp,
-        "query_url": query_url,
-        "response": json.dumps(response),
-    }
-    session.execute(text(q), params)
-    if commit is True:
-        session.commit()
-
 
 def main(args):
     engine = create_engine(os.getenv("DATABASE_URL"))
@@ -399,14 +363,6 @@ def main(args):
     ]
     for api_query in filtered_groupby_queries_to_run:
         query_groupby(api_query, session=session)
-
-    stats_queries = [
-        "https://api.openalex.org/works/stats/?filter=has_doi:true",
-        "https://api.openalex.org/works/stats/",
-    ]
-    logger.debug(f"making stats queries ({len(stats_queries)} queries)")
-    for api_query in stats_queries:
-        query_stats(api_query, session=session)
 
     session.close()
 
