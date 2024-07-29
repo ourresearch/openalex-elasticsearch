@@ -360,6 +360,8 @@ def main(args):
         # citations funnel project
         "https://api.openalex.org/works?filter=referenced_works_count:>0&group_by=type",
         "https://api.openalex.org/works?filter=mag_only:false,referenced_works_count:>0&group_by=type",
+        "https://api.openalex.org/works?filter=referenced_works_count:>0&group_by=is_oa",
+        "https://api.openalex.org/works?filter=mag_only:false,referenced_works_count:>0&group_by=is_oa",
     ]
     for api_query in filtered_groupby_queries_to_run:
         query_groupby(api_query, session=session)
