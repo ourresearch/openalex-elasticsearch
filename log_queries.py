@@ -362,6 +362,9 @@ def main(args):
         "https://api.openalex.org/works?filter=mag_only:false,referenced_works_count:>0&group_by=type",
         "https://api.openalex.org/works?filter=referenced_works_count:>0&group_by=is_oa",
         "https://api.openalex.org/works?filter=mag_only:false,referenced_works_count:>0&group_by=is_oa",
+        "https://api.openalex.org/works?filter=mag_only:false,publication_year:2013-2025,type:article|book-chapter|preprint|dissertation|review|book|letter|other|report|editorial|peer-review|erratum|grant|supplementary-materials|retraction&group_by=has_raw_affiliation_strings",
+        "https://api.openalex.org/works?filter=mag_only:false,publication_year:2013-2025,type:article|book-chapter|preprint|dissertation|review|book|letter|other|report|editorial|peer-review|erratum|grant|supplementary-materials|retraction&group_by=has_references",
+        "https://api.openalex.org/works?filter=mag_only:false,publication_year:2013-2025,type:article|book-chapter|preprint|dissertation|review|book|letter|other|report|editorial|peer-review|erratum|grant|supplementary-materials|retraction&group_by=institutions_distinct_count",
     ]
     for api_query in filtered_groupby_queries_to_run:
         query_groupby(api_query, session=session)
