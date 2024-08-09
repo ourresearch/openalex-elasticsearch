@@ -28,6 +28,8 @@ import backoff
 from sqlalchemy import create_engine, desc, text
 from sqlalchemy.orm import Session
 
+API_KEY = os.getenv('API_KEY')
+
 
 def get_entity_count(entity: str) -> int:
     url = f"https://api.openalex.org/{entity}"
@@ -107,11 +109,8 @@ def query_count(query_url: str, session: Session, commit=True):
 
 @backoff.on_exception(backoff.expo, RequestException, max_time=30)
 @backoff.on_predicate(backoff.expo, lambda x: x.status_code >= 429, max_time=30)
-def make_request(query_url, params=None):
-    if params is None:
-        r = requests.get(query_url)
-    else:
-        r = requests.get(query_url, params=params)
+def make_request(query_url, **kwargs):
+    r = requests.get(query_url, **kwargs)
     return r
 
 @backoff.on_exception(backoff.expo, RequestException, max_time=120)
@@ -224,7 +223,7 @@ def make_all_author_name_queries(session: Session, commit=True):
         session.commit()
 
 
-def query_groupby(query_url: str, session: Session, commit=True):
+def query_groupby(query_url: str, session: Session, commit=True, api_key=None):
     # prepare the url
     if "mailto=" not in query_url:
         query_url += "&mailto=dev@ourresearch.org"
@@ -234,7 +233,10 @@ def query_groupby(query_url: str, session: Session, commit=True):
     timestamp = datetime.now(timezone.utc)
     # make the request
     logger.debug(f"query_url: {query_url}")
-    r = make_request(query_url)
+    if api_key is not None:
+        r = make_request(query_url, headers={'api_key': api_key})
+    else:
+        r = make_request(query_url)
     if r.status_code == 403:
         return
     try:
@@ -368,6 +370,13 @@ def main(args):
     ]
     for api_query in filtered_groupby_queries_to_run:
         query_groupby(api_query, session=session)
+
+    filtered_groupby_queries_to_run_with_api_key = [
+        # monitor pdf url backfill
+        "https://api.openalex.org/works?filter=has_doi:true,indexed_in:crossref,is_oa:true,from_created_date:2024-06-26,to_created_date:2024-08-09&group_by=has_pdf_url",
+    ]
+    for api_query in filtered_groupby_queries_to_run_with_api_key:
+        query_groupby(api_query, session=session, api_key=API_KEY)
 
     session.close()
 
