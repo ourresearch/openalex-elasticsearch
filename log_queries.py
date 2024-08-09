@@ -6,7 +6,7 @@ DESCRIPTION = (
 
 import sys, os, time, json, csv
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 from timeit import default_timer as timer
 
 try:
@@ -36,7 +36,7 @@ def get_entity_count(entity: str) -> int:
 
 
 def entity_counts_queries():
-    timestamp = datetime.utcnow()
+    timestamp = datetime.now(timezone.utc)
     counts = {}
     entities = [
         "works",
@@ -85,7 +85,7 @@ def query_count(query_url: str, session: Session, commit=True):
     if "bypass_cache=" not in query_url:
         query_url += "&bypass_cache=true"
     # get timestamp
-    timestamp = datetime.utcnow()
+    timestamp = datetime.now(timezone.utc)
     # make the request
     logger.debug(f"query_url: {query_url}")
     num_results = get_count_from_api(query_url)
@@ -126,7 +126,7 @@ def make_request_long_running(query_url, params=None):
 
 def get_institution_benchmarks(session: Session, commit=True):
     # get timestamp
-    collection_start = datetime.utcnow()
+    collection_start = datetime.now(timezone.utc)
     # get institution ids
     fp = Path("./institutions_for_scopus_compare.csv")
     if not fp.exists():
@@ -140,7 +140,7 @@ def get_institution_benchmarks(session: Session, commit=True):
             display_name = row['display_name']
             scopus_id = row['scopus_id']
             database = "openalex"
-            query_timestamp = datetime.utcnow()
+            query_timestamp = datetime.now(timezone.utc)
             # get data
             filters = f"institutions.id:{institution_id}"
             url = f"https://api.openalex.org/works?filter={filters}"
@@ -185,7 +185,7 @@ def get_institution_benchmarks(session: Session, commit=True):
 
 def make_all_author_name_queries(session: Session, commit=True):
     # get timestamp
-    timestamp = datetime.utcnow()
+    timestamp = datetime.now(timezone.utc)
     # get author names
     fp = Path("./author_names.txt")
     if not fp.exists():
@@ -231,7 +231,7 @@ def query_groupby(query_url: str, session: Session, commit=True):
     if "bypass_cache=" not in query_url:
         query_url += "&bypass_cache=true"
     # get timestamp
-    timestamp = datetime.utcnow()
+    timestamp = datetime.now(timezone.utc)
     # make the request
     logger.debug(f"query_url: {query_url}")
     r = make_request(query_url)
